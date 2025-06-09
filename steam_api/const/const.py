@@ -1,0 +1,1 @@
+ZALO_USER_INFO_API = "https://graph.zalo.me/v2.0/me?fields=id,name,picture"

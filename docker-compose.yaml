@@ -1,0 +1,54 @@
+version: "3"
+services:
+  steam_backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8000:8000
+    restart: always
+    environment:
+      - DATABASE_ENGINE=mysql
+      - DATABASE_NAME=steam
+      - DATABASE_USER=root
+      - DATABASE_PASSWORD=steam
+      - DATABASE_HOST=steam_mysql
+      - DATABASE_PORT=3306
+      - REDIS_HOST=steam_redis
+      - REDIS_PORT=6379
+      - REDIS_USERNAME=""
+      - REDIS_PASSWORD=""
+      - EMAIL_HOST=smtp.gmail.com
+      - EMAIL_PORT=587
+      - EMAIL_HOST_USER=""
+      - EMAIL_HOST_PASSWORD=""
+      - FIREBASE_CERTIFICATE=/usr/src/app/firebase_cert.json
+      - FIREBASE_STORAGE_BUCKET_URL=test-firebase-acfc3.appspot.com
+    volumes:
+      - ./:/usr/src/app
+    depends_on:
+      - steam_mysql
+      - steam_redis
+
+  steam_mysql:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_DATABASE: "steam"
+      MYSQL_ROOT_PASSWORD: "steam"
+    ports:
+      - 3308:3306
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  steam_redis:
+    image: redis:6.0
+    restart: always
+    ports:
+      - 6381:6379
+    volumes:
+      - redis_data:/data
+
+volumes:
+  mysql_data:
+  redis_data:
