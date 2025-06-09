@@ -10,6 +10,7 @@ from steam_api.views.web.student import WebStudentView
 from steam_api.views.web.lesson_gallery import WebLessonGalleryView
 from steam_api.views.web.course_module import WebCourseModuleView
 from steam_api.views.web.lesson_evaluation import WebLessonEvaluationView
+from steam_api.views.web.evaluation_criteria import EvaluationCriteriaView
 
 app_router = SimpleRouter(trailing_slash=False)
 app_router.register('auth', AppAuthView, "app_auth")
@@ -27,4 +28,5 @@ web_router.register('lesson-evaluations', WebLessonEvaluationView, "lesson_evalu
 urlpatterns = [
    path('app/', include(app_router.urls)),
    path('back-office/', include(web_router.urls)),
+   path('back-office/evaluation-criteria', EvaluationCriteriaView.as_view(), name='evaluation_criteria'),
 ]
