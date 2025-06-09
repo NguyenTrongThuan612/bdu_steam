@@ -4,7 +4,7 @@ import firebase_admin
 from firebase_admin import credentials, storage
 from django.conf import settings
 
-cred = credentials.Certificate(settings.FIREBASE_CREDENTIALS_PATH)
+cred = credentials.Certificate(settings.FIREBASE_CERTIFICATE)
 if not firebase_admin._apps:
     firebase_admin.initialize_app(cred, {
         'storageBucket': settings.FIREBASE_STORAGE_BUCKET_URL
