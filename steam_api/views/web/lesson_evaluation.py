@@ -26,6 +26,13 @@ class WebLessonEvaluationView(viewsets.ViewSet):
     @swagger_auto_schema(
         manual_parameters=[
             openapi.Parameter(
+                'lesson',
+                openapi.IN_QUERY,
+                description='Filter by lesson ID',
+                type=openapi.TYPE_INTEGER,
+                required=False
+            ),
+            openapi.Parameter(
                 'module',
                 openapi.IN_QUERY,
                 description='Filter by module ID',
@@ -43,13 +50,6 @@ class WebLessonEvaluationView(viewsets.ViewSet):
                 'student',
                 openapi.IN_QUERY,
                 description='Filter by student ID',
-                type=openapi.TYPE_INTEGER,
-                required=False
-            ),
-            openapi.Parameter(
-                'lesson_number',
-                openapi.IN_QUERY,
-                description='Filter by lesson number',
                 type=openapi.TYPE_INTEGER,
                 required=False
             )
@@ -70,35 +70,32 @@ class WebLessonEvaluationView(viewsets.ViewSet):
     def list(self, request):
         try:
             logging.getLogger().info("WebLessonEvaluationView.list")
+            lesson_id = request.query_params.get('lesson')
             module_id = request.query_params.get('module')
             class_room_id = request.query_params.get('class_room')
             student_id = request.query_params.get('student')
-            lesson_number = request.query_params.get('lesson_number')
             
-            # Quản lý có thể xem tất cả đánh giá
-            if request.user.role == WebUserRole.MANAGER:
-                evaluations = LessonEvaluation.objects.filter(deleted_at__isnull=True)
-            # Giáo viên chỉ xem được đánh giá của lớp mình dạy
-            else:
-                evaluations = LessonEvaluation.objects.filter(
-                    module__class_room__teacher=request.user,
-                    deleted_at__isnull=True
-                ) | LessonEvaluation.objects.filter(
-                    module__class_room__teaching_assistant=request.user,
-                    deleted_at__isnull=True
-                )
+            evaluations = LessonEvaluation.objects.filter(
+                lesson__module__class_room__teacher=request.user,
+                deleted_at__isnull=True
+            ) | LessonEvaluation.objects.filter(
+                lesson__module__class_room__teaching_assistant=request.user,
+                deleted_at__isnull=True
+            )
             
+            if lesson_id:
+                evaluations = evaluations.filter(lesson_id=lesson_id)
+                
             if module_id:
-                evaluations = evaluations.filter(module_id=module_id)
+                evaluations = evaluations.filter(lesson__module_id=module_id)
                 
             if class_room_id:
-                evaluations = evaluations.filter(module__class_room_id=class_room_id)
+                evaluations = evaluations.filter(lesson__module__class_room_id=class_room_id)
                 
             if student_id:
                 evaluations = evaluations.filter(student_id=student_id)
                 
-            if lesson_number:
-                evaluations = evaluations.filter(lesson_number=lesson_number)
+            evaluations = evaluations.order_by('lesson__module__sequence_number', 'lesson__sequence_number')
                 
             serializer = LessonEvaluationSerializer(evaluations, many=True)
             return RestResponse(data=serializer.data, status=status.HTTP_200_OK).response
@@ -110,7 +107,7 @@ class WebLessonEvaluationView(viewsets.ViewSet):
         request_body=CreateLessonEvaluationSerializer,
         responses={
             201: LessonEvaluationSerializer(),
-            400: 'Bad Request',
+            400: 'Bad Request - Invalid data or evaluation already exists',
             403: 'Forbidden - Not teacher of this class',
             500: openapi.Response(
                 description='Internal Server Error',
@@ -131,9 +128,18 @@ class WebLessonEvaluationView(viewsets.ViewSet):
             if not serializer.is_valid():
                 return RestResponse(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST).response
 
+            lesson = serializer.validated_data['lesson']
+            student = serializer.validated_data['student']
+            
+            # Kiểm tra xem học viên có thuộc lớp học không
+            if student not in lesson.module.class_room.students.all():
+                return RestResponse(
+                    data={"error": "Student is not enrolled in this class"},
+                    status=status.HTTP_400_BAD_REQUEST
+                ).response
+
             # Kiểm tra người dùng có phải là giáo viên của lớp không
-            module = serializer.validated_data['module']
-            if request.user not in [module.class_room.teacher, module.class_room.teaching_assistant]:
+            if request.user not in [lesson.module.class_room.teacher, lesson.module.class_room.teaching_assistant]:
                 return RestResponse(
                     data={"error": "You are not the teacher of this class"},
                     status=status.HTTP_403_FORBIDDEN
@@ -173,14 +179,14 @@ class WebLessonEvaluationView(viewsets.ViewSet):
                 return RestResponse(status=status.HTTP_404_NOT_FOUND).response
 
             # Kiểm tra người dùng có phải là giáo viên của lớp không
-            if request.user not in [evaluation.module.class_room.teacher, evaluation.module.class_room.teaching_assistant]:
+            if request.user not in [evaluation.lesson.module.class_room.teacher, evaluation.lesson.module.class_room.teaching_assistant]:
                 return RestResponse(
                     data={"error": "You are not the teacher of this class"},
                     status=status.HTTP_403_FORBIDDEN
                 ).response
 
             # Kiểm tra lớp học đã kết thúc chưa
-            if evaluation.module.class_room.end_date < timezone.now().date():
+            if evaluation.lesson.module.class_room.end_date < timezone.now().date():
                 return RestResponse(
                     data={"error": "Cannot update evaluation after class has ended"},
                     status=status.HTTP_403_FORBIDDEN
@@ -223,14 +229,14 @@ class WebLessonEvaluationView(viewsets.ViewSet):
                 return RestResponse(status=status.HTTP_404_NOT_FOUND).response
 
             # Kiểm tra người dùng có phải là giáo viên của lớp không
-            if request.user not in [evaluation.module.class_room.teacher, evaluation.module.class_room.teaching_assistant]:
+            if request.user not in [evaluation.lesson.module.class_room.teacher, evaluation.lesson.module.class_room.teaching_assistant]:
                 return RestResponse(
                     data={"error": "You are not the teacher of this class"},
                     status=status.HTTP_403_FORBIDDEN
                 ).response
 
             # Kiểm tra lớp học đã kết thúc chưa
-            if evaluation.module.class_room.end_date < timezone.now().date():
+            if evaluation.lesson.module.class_room.end_date < timezone.now().date():
                 return RestResponse(
                     data={"error": "Cannot delete evaluation after class has ended"},
                     status=status.HTTP_403_FORBIDDEN

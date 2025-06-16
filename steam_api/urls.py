@@ -11,6 +11,8 @@ from steam_api.views.web.lesson_gallery import WebLessonGalleryView
 from steam_api.views.web.course_module import WebCourseModuleView
 from steam_api.views.web.lesson_evaluation import WebLessonEvaluationView
 from steam_api.views.web.evaluation_criteria import EvaluationCriteriaView
+from steam_api.views.web.lesson import WebLessonView
+from steam_api.views.web.course_registration import WebCourseRegistrationView
 
 app_router = SimpleRouter(trailing_slash=False)
 app_router.register('auth', AppAuthView, "app_auth")
@@ -24,6 +26,8 @@ web_router.register('students', WebStudentView, "students")
 web_router.register('lesson-galleries', WebLessonGalleryView, "lesson_galleries")
 web_router.register('course-modules', WebCourseModuleView, "course_modules")
 web_router.register('lesson-evaluations', WebLessonEvaluationView, "lesson_evaluations")
+web_router.register('lessons', WebLessonView, "lessons")
+web_router.register('course-registrations', WebCourseRegistrationView, "course_registrations")
 
 urlpatterns = [
    path('app/', include(app_router.urls)),

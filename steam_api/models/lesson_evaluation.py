@@ -1,20 +1,16 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
-from steam_api.models.course_module import CourseModule
+from steam_api.models.lesson import Lesson
 from steam_api.models.student import Student
 
 class LessonEvaluation(models.Model):
     class Meta:
         db_table = "lesson_evaluations"
-        unique_together = ('module', 'lesson_number', 'student')
-        ordering = ['module__sequence_number', 'lesson_number']
+        unique_together = ('lesson', 'student')
+        ordering = ['lesson__module__sequence_number', 'lesson__sequence_number']
         
     id = models.BigAutoField(primary_key=True)
-    module = models.ForeignKey(CourseModule, on_delete=models.CASCADE, related_name='lesson_evaluations')
-    lesson_number = models.IntegerField(
-        validators=[MinValueValidator(1)], 
-        help_text="The sequence number of the lesson in this module"
-    )
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='evaluations')
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='lesson_evaluations')
     
     # Mức độ tập trung (1-5)
@@ -100,4 +96,4 @@ class LessonEvaluation(models.Model):
     deleted_at = models.DateTimeField(null=True)
 
     def __str__(self):
-        return f"{self.module.class_room.name} - {self.module.name} - Lesson {self.lesson_number} - {self.student.first_name}"
+        return f"{self.lesson.module.class_room.name} - {self.lesson.module.name} - Lesson {self.lesson.sequence_number} - {self.student.first_name}"

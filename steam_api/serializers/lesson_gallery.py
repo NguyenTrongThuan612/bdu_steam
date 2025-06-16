@@ -5,7 +5,7 @@ from steam_api.helpers.firebase_storage import upload_image_to_firebase
 class LessonGallerySerializer(serializers.ModelSerializer):
     class Meta:
         model = LessonGallery
-        fields = ['id', 'module', 'lesson_number', 'image_urls', 'created_at']
+        fields = ['id', 'lesson', 'image_urls', 'created_at']
         read_only_fields = ['id', 'created_at']
 
 class CreateLessonGallerySerializer(serializers.ModelSerializer):
@@ -13,26 +13,21 @@ class CreateLessonGallerySerializer(serializers.ModelSerializer):
     
     class Meta:
         model = LessonGallery
-        fields = ['module', 'lesson_number', 'image']
+        fields = ['lesson', 'image']
         
     def validate(self, data):
-        if data['lesson_number'] > data['module'].total_lessons:
-            raise serializers.ValidationError(
-                f"Lesson number cannot be greater than total lessons in this module ({data['module'].total_lessons})"
-            )
-            
         try:
             gallery = LessonGallery.objects.get(
-                module=data['module'],
-                lesson_number=data['lesson_number']
+                lesson=data['lesson']
             )
+            
+            if gallery and gallery.images_count >= 5:
+                raise serializers.ValidationError("This lesson already has maximum number of images (5)")
+            
+            data['gallery'] = gallery
         except LessonGallery.DoesNotExist:
-            gallery = None
+            data['gallery'] = None
             
-        if gallery and gallery.images_count >= 5:
-            raise serializers.ValidationError("This lesson already has maximum number of images (5)")
-            
-        data['gallery'] = gallery
         return data
         
     def create(self, validated_data):
@@ -48,8 +43,7 @@ class CreateLessonGallerySerializer(serializers.ModelSerializer):
                 return gallery
             else:
                 return LessonGallery.objects.create(
-                    module=validated_data['module'],
-                    lesson_number=validated_data['lesson_number'],
+                    lesson=validated_data['lesson'],
                     image_urls=[image_url]
                 )
         except Exception as e:

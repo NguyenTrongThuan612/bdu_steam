@@ -22,6 +22,13 @@ class WebLessonGalleryView(viewsets.ViewSet):
     @swagger_auto_schema(
         manual_parameters=[
             openapi.Parameter(
+                'lesson',
+                openapi.IN_QUERY,
+                description='Filter by lesson ID',
+                type=openapi.TYPE_INTEGER,
+                required=False
+            ),
+            openapi.Parameter(
                 'module',
                 openapi.IN_QUERY,
                 description='Filter by module ID',
@@ -32,13 +39,6 @@ class WebLessonGalleryView(viewsets.ViewSet):
                 'class_room',
                 openapi.IN_QUERY,
                 description='Filter by class room ID',
-                type=openapi.TYPE_INTEGER,
-                required=False
-            ),
-            openapi.Parameter(
-                'lesson_number',
-                openapi.IN_QUERY,
-                description='Filter by lesson number',
                 type=openapi.TYPE_INTEGER,
                 required=False
             )
@@ -59,26 +59,26 @@ class WebLessonGalleryView(viewsets.ViewSet):
     def list(self, request):
         try:
             logging.getLogger().info("WebLessonGalleryView.list")
+            lesson_id = request.query_params.get('lesson')
             module_id = request.query_params.get('module')
             class_room_id = request.query_params.get('class_room')
-            lesson_number = request.query_params.get('lesson_number')
             
             galleries = LessonGallery.objects.filter(
-                module__class_room__teacher=request.user
+                lesson__module__class_room__teacher=request.user
             ) | LessonGallery.objects.filter(
-                module__class_room__teaching_assistant=request.user
+                lesson__module__class_room__teaching_assistant=request.user
             )
             
+            if lesson_id:
+                galleries = galleries.filter(lesson_id=lesson_id)
+                
             if module_id:
-                galleries = galleries.filter(module_id=module_id)
+                galleries = galleries.filter(lesson__module_id=module_id)
                 
             if class_room_id:
-                galleries = galleries.filter(module__class_room_id=class_room_id)
+                galleries = galleries.filter(lesson__module__class_room_id=class_room_id)
                 
-            if lesson_number:
-                galleries = galleries.filter(lesson_number=lesson_number)
-                
-            galleries = galleries.order_by('module__sequence_number', 'lesson_number')
+            galleries = galleries.order_by('lesson__module__sequence_number', 'lesson__sequence_number')
                 
             serializer = LessonGallerySerializer(galleries, many=True)
             return RestResponse(data=serializer.data, status=status.HTTP_200_OK).response
@@ -121,8 +121,8 @@ class WebLessonGalleryView(viewsets.ViewSet):
             if not serializer.is_valid():
                 return RestResponse(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST).response
 
-            module = serializer.validated_data['module']
-            if request.user not in [module.class_room.teacher, module.class_room.teaching_assistant]:
+            lesson = serializer.validated_data['lesson']
+            if request.user not in [lesson.module.class_room.teacher, lesson.module.class_room.teaching_assistant]:
                 return RestResponse(
                     data={"error": "You are not the teacher of this class"},
                     status=status.HTTP_403_FORBIDDEN
