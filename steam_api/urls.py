@@ -1,5 +1,5 @@
 from django.urls import path, include
-from rest_framework.routers import SimpleRouter
+from rest_framework.routers import SimpleRouter, DefaultRouter
 
 from steam_api.views.app.auth import AppAuthView
 from steam_api.views.web.auth import WebAuthView
@@ -13,6 +13,7 @@ from steam_api.views.web.lesson_evaluation import WebLessonEvaluationView
 from steam_api.views.web.evaluation_criteria import EvaluationCriteriaView
 from steam_api.views.web.lesson import WebLessonView
 from steam_api.views.web.course_registration import WebCourseRegistrationView
+from steam_api.views.health import HealthCheckView
 
 app_router = SimpleRouter(trailing_slash=False)
 app_router.register('auth', AppAuthView, "app_auth")
@@ -33,4 +34,5 @@ urlpatterns = [
    path('app/', include(app_router.urls)),
    path('back-office/', include(web_router.urls)),
    path('back-office/evaluation-criteria', EvaluationCriteriaView.as_view(), name='evaluation_criteria'),
+   path('health/', HealthCheckView.as_view(), name='health-check'),
 ]
