@@ -14,3 +14,4 @@ requests
 firebase_admin
 logtail-python
 Pillow
+psycopg2

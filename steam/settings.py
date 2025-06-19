@@ -81,12 +81,12 @@ WSGI_APPLICATION = 'steam.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASE_ENGINE = config("DATABASE_ENGINE", "")
-DATABASE_NAME = config("DATABASE_NAME", "")
-DATABASE_USER = config("DATABASE_USER", "")
-DATABASE_PASSWORD = config("DATABASE_PASSWORD", "")
-DATABASE_HOST = config("DATABASE_HOST", "")
-DATABASE_PORT = config("DATABASE_PORT", 3306)
+DATABASE_ENGINE = config("DATABASE_ENGINE")
+DATABASE_NAME = config("DATABASE_NAME")
+DATABASE_USER = config("DATABASE_USER")
+DATABASE_PASSWORD = config("DATABASE_PASSWORD")
+DATABASE_HOST = config("DATABASE_HOST")
+DATABASE_PORT = config("DATABASE_PORT")
 
 DATABASES = {
     'default': {
@@ -99,11 +99,11 @@ DATABASES = {
     }
 }
 
-REDIS_HOST = config("REDIS_HOST", "")
-REDIS_PORT = config("REDIS_PORT", "")
-REDIS_USERNAME = config("REDIS_USERNAME", "default")
-REDIS_PASSWORD = config("REDIS_PASSWORD", "")
-REDIS_CONN_STR = f'redis://{REDIS_HOST}:{REDIS_PORT}'
+REDIS_HOST = config("REDIS_HOST")
+REDIS_PORT = config("REDIS_PORT")
+REDIS_USERNAME = config("REDIS_USERNAME")
+REDIS_PASSWORD = config("REDIS_PASSWORD")
+REDIS_CONN_STR = f'redis://{REDIS_HOST}:{REDIS_PORT}' if REDIS_USERNAME == "" else f'redis://{REDIS_USERNAME}:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}'
 
 CACHES = {
     'default': {
@@ -204,8 +204,8 @@ LOGGING = {
     'handlers': {
         'logtail': {
             'class': 'logtail.LogtailHandler',
-            'source_token': config("BETTERSTACK_LOG_TOKEN", ""),
-            'host': config("BETTERSTACK_LOG_HOST", ""),
+            'source_token': config("BETTERSTACK_LOG_TOKEN"),
+            'host': config("BETTERSTACK_LOG_HOST"),
         },
         "console": {
             "class": "logging.StreamHandler",
@@ -223,14 +223,14 @@ LOGGING = {
 }
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = config("EMAIL_HOST", "smtp.gmail.com")
-EMAIL_PORT = config("EMAIL_PORT", 587)  
+EMAIL_HOST = config("EMAIL_HOST")
+EMAIL_PORT = config("EMAIL_PORT")  
 EMAIL_USE_TLS = True  
-EMAIL_HOST_USER = config("EMAIL_HOST_USER", "")
-EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", "")
+EMAIL_HOST_USER = config("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
 
 AUTH_USER_MODEL = 'steam_api.WebUser'
 
 # Firebase Configuration
 FIREBASE_CERTIFICATE = config("FIREBASE_CERTIFICATE", "firebase_cert.json")
-FIREBASE_STORAGE_BUCKET_URL = config("FIREBASE_STORAGE_BUCKET_URL", "")
+FIREBASE_STORAGE_BUCKET_URL = config("FIREBASE_STORAGE_BUCKET_URL")
