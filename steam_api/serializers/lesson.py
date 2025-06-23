@@ -20,6 +20,9 @@ class CreateLessonSerializer(serializers.ModelSerializer):
         fields = ['module', 'name', 'sequence_number']
 
     def validate(self, data):
+        # Call parent's validate method first
+        data = super().validate(data)
+        
         module = data['module']
         sequence_number = data['sequence_number']
 

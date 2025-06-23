@@ -31,6 +31,9 @@ class CreateLessonEvaluationSerializer(serializers.ModelSerializer):
         ]
         
     def validate(self, data):
+        # Call parent's validate method first
+        data = super().validate(data)
+        
         try:
             LessonEvaluation.objects.get(
                 lesson=data['lesson'],

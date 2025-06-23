@@ -16,6 +16,9 @@ class CreateLessonGallerySerializer(serializers.ModelSerializer):
         fields = ['lesson', 'image']
         
     def validate(self, data):
+        # Call parent's validate method first
+        data = super().validate(data)
+        
         try:
             gallery = LessonGallery.objects.get(
                 lesson=data['lesson']

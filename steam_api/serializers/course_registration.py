@@ -19,9 +19,12 @@ class CourseRegistrationSerializer(serializers.ModelSerializer):
 class CreateCourseRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = CourseRegistration
-        fields = ['student', 'class_room', 'note']
+        fields = ['student', 'class_room', 'note', 'amount']
         
     def validate(self, data):
+        # Call parent's validate method first
+        data = super().validate(data)
+        
         # Kiểm tra xem học viên đã đăng ký lớp này chưa
         try:
             existing_registration = CourseRegistration.objects.get(
@@ -65,6 +68,9 @@ class UpdateCourseRegistrationSerializer(serializers.ModelSerializer):
         return value
         
     def validate(self, data):
+        # Call parent's validate method first
+        data = super().validate(data)
+        
         if 'paid_amount' in data:
             # Kiểm tra số tiền thanh toán không vượt quá học phí
             if data['paid_amount'] > self.instance.amount:

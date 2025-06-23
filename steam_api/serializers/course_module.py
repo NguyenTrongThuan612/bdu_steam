@@ -21,6 +21,9 @@ class CreateCourseModuleSerializer(serializers.ModelSerializer):
         fields = ['class_room', 'name', 'description', 'sequence_number', 'total_lessons', 'lesson_names']
 
     def validate(self, data):
+        # Call parent's validate method first
+        data = super().validate(data)
+        
         if 'lesson_names' in data:
             if len(data['lesson_names']) != data['total_lessons']:
                 raise serializers.ValidationError({

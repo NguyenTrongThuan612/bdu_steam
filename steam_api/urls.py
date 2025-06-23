@@ -22,12 +22,12 @@ web_router = SimpleRouter(trailing_slash=False)
 web_router.register('root', RootView, "web_user")
 web_router.register('auth', WebAuthView, "web_auth")
 web_router.register('courses', WebCourseView, "courses")
+web_router.register('lessons', WebLessonView, "lessons")
 web_router.register('classes', WebClassRoomView, "classes")
 web_router.register('students', WebStudentView, "students")
 web_router.register('lesson-galleries', WebLessonGalleryView, "lesson_galleries")
 web_router.register('course-modules', WebCourseModuleView, "course_modules")
 web_router.register('lesson-evaluations', WebLessonEvaluationView, "lesson_evaluations")
-web_router.register('lessons', WebLessonView, "lessons")
 web_router.register('course-registrations', WebCourseRegistrationView, "course_registrations")
 
 urlpatterns = [
