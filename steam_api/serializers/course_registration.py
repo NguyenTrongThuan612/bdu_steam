@@ -2,6 +2,8 @@ from rest_framework import serializers
 from steam_api.models.course_registration import CourseRegistration
 from steam_api.serializers.student import StudentSerializer
 from steam_api.serializers.class_room import ClassRoomSerializer
+from steam_api.models.student import Student
+from steam_api.models.class_room import ClassRoom
 
 class CourseRegistrationSerializer(serializers.ModelSerializer):
     student = StudentSerializer(read_only=True)
@@ -17,15 +19,20 @@ class CourseRegistrationSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'created_at', 'updated_at']
 
 class CreateCourseRegistrationSerializer(serializers.ModelSerializer):
+    student = serializers.PrimaryKeyRelatedField(
+        queryset=Student.objects.filter(deleted_at__isnull=True)
+    )
+    class_room = serializers.PrimaryKeyRelatedField(
+        queryset=ClassRoom.objects.filter(is_active=True, deleted_at__isnull=True)
+    )
+    
     class Meta:
         model = CourseRegistration
         fields = ['student', 'class_room', 'note', 'amount']
         
     def validate(self, data):
-        # Call parent's validate method first
         data = super().validate(data)
         
-        # Kiểm tra xem học viên đã đăng ký lớp này chưa
         try:
             existing_registration = CourseRegistration.objects.get(
                 student=data['student'],
@@ -37,12 +44,10 @@ class CreateCourseRegistrationSerializer(serializers.ModelSerializer):
         except CourseRegistration.DoesNotExist:
             pass
             
-        # Kiểm tra số lượng học viên trong lớp
         class_room = data['class_room']
         if class_room.students.count() >= class_room.max_students:
             raise serializers.ValidationError("Class is full")
             
-        # Lấy học phí từ khóa học
         data['amount'] = class_room.course.price
             
         return data
@@ -59,7 +64,6 @@ class UpdateCourseRegistrationSerializer(serializers.ModelSerializer):
         }
         
     def validate_status(self, value):
-        # Kiểm tra các điều kiện khi thay đổi trạng thái
         if self.instance:
             if self.instance.status == 'approved' and value != 'cancelled':
                 raise serializers.ValidationError("Cannot change status of approved registration except to cancelled")
@@ -68,11 +72,9 @@ class UpdateCourseRegistrationSerializer(serializers.ModelSerializer):
         return value
         
     def validate(self, data):
-        # Call parent's validate method first
         data = super().validate(data)
         
         if 'paid_amount' in data:
-            # Kiểm tra số tiền thanh toán không vượt quá học phí
             if data['paid_amount'] > self.instance.amount:
                 raise serializers.ValidationError({'paid_amount': 'Paid amount cannot exceed total amount'})
         return data 

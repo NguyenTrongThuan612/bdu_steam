@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from steam_api.models.lesson_gallery import LessonGallery
 from steam_api.helpers.firebase_storage import upload_image_to_firebase
+from steam_api.models.lesson import Lesson
 
 class LessonGallerySerializer(serializers.ModelSerializer):
     class Meta:
@@ -10,6 +11,9 @@ class LessonGallerySerializer(serializers.ModelSerializer):
 
 class CreateLessonGallerySerializer(serializers.ModelSerializer):
     image = serializers.ImageField(write_only=True)
+    lesson = serializers.PrimaryKeyRelatedField(
+        queryset=Lesson.objects.filter(deleted_at__isnull=True)
+    )
     
     class Meta:
         model = LessonGallery

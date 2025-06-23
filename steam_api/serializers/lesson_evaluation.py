@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from steam_api.models.lesson_evaluation import LessonEvaluation
 from steam_api.serializers.student import StudentSerializer
+from steam_api.models.student import Student
+from steam_api.models.lesson import Lesson
 
 class LessonEvaluationSerializer(serializers.ModelSerializer):
     student = StudentSerializer(read_only=True)
@@ -20,6 +22,13 @@ class LessonEvaluationSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'created_at', 'updated_at']
 
 class CreateLessonEvaluationSerializer(serializers.ModelSerializer):
+    student = serializers.PrimaryKeyRelatedField(
+        queryset=Student.objects.filter(is_active=True, deleted_at__isnull=True)
+    )
+    lesson = serializers.PrimaryKeyRelatedField(
+        queryset=Lesson.objects.filter(deleted_at__isnull=True)
+    )
+    
     class Meta:
         model = LessonEvaluation
         fields = [

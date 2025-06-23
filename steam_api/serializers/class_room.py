@@ -3,6 +3,7 @@ from steam_api.models.class_room import ClassRoom
 from steam_api.helpers.firebase_storage import upload_image_to_firebase
 from steam_api.serializers.web_user import WebUserSerializer
 from steam_api.models.web_user import WebUser, WebUserRole, WebUserStatus
+from steam_api.models.course import Course
 
 class ClassRoomSerializer(serializers.ModelSerializer):
     teacher = WebUserSerializer(read_only=True)
@@ -25,6 +26,9 @@ class CreateClassRoomSerializer(serializers.ModelSerializer):
         queryset=WebUser.objects.filter(role=WebUserRole.TEACHER, status=WebUserStatus.ACTIVATED),
         required=False,
         allow_null=True
+    )
+    course = serializers.PrimaryKeyRelatedField(
+        queryset=Course.objects.filter(is_active=True, deleted_at__isnull=True)
     )
     
     class Meta:
