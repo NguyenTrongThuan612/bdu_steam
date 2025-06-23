@@ -1,6 +1,6 @@
 import re
 from rest_framework import serializers
-from steam_api.models.web_user import WebUser
+from steam_api.models.web_user import WebUser, WebUserRole
 
 class WebUserSerializer(serializers.ModelSerializer):
     class Meta: 
@@ -21,6 +21,7 @@ class CreateWebUserSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
     phone = serializers.CharField(required=False)
     password = serializers.CharField(required=True)
+    role = serializers.ChoiceField(choices=WebUserRole.choices, required=True)
 
     def validate_phone_number(self, value):
         phone_pattern = re.compile(r"^(?:\+)?[0-9]{6,14}$")
@@ -33,6 +34,11 @@ class CreateWebUserSerializer(serializers.Serializer):
         if not re.match(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&_-])[A-Za-z\d@$!%_#*?&-]{8,30}$', value):
             raise serializers.ValidationError("Mật khẩu không hợp lệ. Yêu cầu ít nhất 8 ký tự, bao gồm chữ cái viết thường, viết hoa, số và ký tự đặc biệt.")
         
+        return value
+    
+    def validate_role(self, value):
+        if value == WebUserRole.ROOT:
+            raise serializers.ValidationError("Không thể tạo tài khoản với quyền ROOT!")
         return value
 
 class VerifyWebUserSerializer(serializers.Serializer):

@@ -34,7 +34,6 @@ class RootView(viewsets.ViewSet):
             user = WebUser(**validated_data)
             user.set_password(_password)
             user.status = WebUserStatus.UNVERIFIED
-            user.role = WebUserRole.MANAGER
             user.save() 
                 
             if user.id is None:
