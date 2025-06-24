@@ -7,6 +7,7 @@ from drf_yasg import openapi
 from steam_api.helpers.response import RestResponse
 from steam_api.middlewares.permissions import IsManager, IsNotRoot
 from steam_api.models.course_module import CourseModule
+from steam_api.models.web_user import WebUserRole
 from steam_api.serializers.course_module import (
     CourseModuleSerializer,
     CreateCourseModuleSerializer,
@@ -51,13 +52,16 @@ class WebCourseModuleView(viewsets.ViewSet):
             logging.getLogger().info("WebCourseModuleView.list")
             class_room_id = request.query_params.get('class_room')
             
-            modules = CourseModule.objects.filter(
-                class_room__teacher=request.user,
-                deleted_at__isnull=True
-            ) | CourseModule.objects.filter(
-                class_room__teaching_assistant=request.user,
-                deleted_at__isnull=True
-            )
+            if request.user.role == WebUserRole.MANAGER:
+                modules = CourseModule.objects.filter(deleted_at__isnull=True)
+            else:
+                modules = CourseModule.objects.filter(
+                    class_room__teacher=request.user,
+                    deleted_at__isnull=True
+                ) | CourseModule.objects.filter(
+                    class_room__teaching_assistant=request.user,
+                    deleted_at__isnull=True
+                )
             
             if class_room_id:
                 modules = modules.filter(class_room_id=class_room_id)
