@@ -51,7 +51,7 @@ class WebClassRoomView(viewsets.ViewSet):
     )
     def list(self, request):
         try:
-            logging.getLogger().info("WebClassRoomView.list")
+            logging.getLogger().info("WebClassRoomView.list params=%s", request.query_params)
             course_id = request.query_params.get('course_id')
             
             classes = ClassRoom.objects.filter(is_active=True, deleted_at__isnull=True)
@@ -65,7 +65,7 @@ class WebClassRoomView(viewsets.ViewSet):
             serializer = ListClassRoomSerializer(classes, many=True)
             return RestResponse(data=serializer.data, status=status.HTTP_200_OK).response
         except Exception as e:
-            logging.getLogger().exception("WebClassRoomView.list exc=%s", e)
+            logging.getLogger().exception("WebClassRoomView.list exc=%s, params=%s", e, request.query_params)
             return RestResponse(data={"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR).response
 
     @swagger_auto_schema(

@@ -36,12 +36,12 @@ class WebCourseView(viewsets.ViewSet):
     )
     def list(self, request):
         try:
-            logging.getLogger().info("WebCourseView.list")
+            logging.getLogger().info("WebCourseView.list params=%s", request.query_params)
             courses = Course.objects.filter(is_active=True, deleted_at__isnull=True)
             serializer = CourseSerializer(courses, many=True)
             return RestResponse(data=serializer.data, status=status.HTTP_200_OK).response
         except Exception as e:
-            logging.getLogger().exception("WebCourseView.list exc=%s", e)
+            logging.getLogger().exception("WebCourseView.list exc=%s, params=%s", e, request.query_params)
             return RestResponse(data={"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR).response
 
     @swagger_auto_schema(

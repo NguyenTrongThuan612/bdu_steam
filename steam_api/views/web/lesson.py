@@ -12,8 +12,8 @@ from steam_api.middlewares.permissions import IsManager
 from steam_api.middlewares.web_authentication import WebUserAuthentication
 
 class WebLessonView(viewsets.ViewSet):
-    authentication_classes = (WebUserAuthentication,)
-    permission_classes = (IsManager,)
+    # authentication_classes = (WebUserAuthentication,)
+    # permission_classes = (IsManager,)
 
     @swagger_auto_schema(
         manual_parameters=[
@@ -40,16 +40,14 @@ class WebLessonView(viewsets.ViewSet):
     )
     def list(self, request):
         try:
-            logging.getLogger().info("WebLessonView.list")
+            logging.getLogger().info("WebLessonView.list params=%s", request.query_params)
             module_id = request.query_params.get('module')
             
-            # Get lessons that are not deleted
             lessons = Lesson.objects.filter(deleted_at__isnull=True)
             
             if module_id:
                 lessons = lessons.filter(module_id=module_id)
                 
-            # Order by module sequence number and lesson sequence number
             lessons = lessons.order_by('module__sequence_number', 'sequence_number')
                 
             serializer = LessonSerializer(lessons, many=True)
@@ -84,7 +82,7 @@ class WebLessonView(viewsets.ViewSet):
     )
     def create(self, request):
         try:
-            logging.getLogger().info("WebLessonView.create")
+            logging.getLogger().info("WebLessonView.create req=%s", request.data)
             
             serializer = CreateLessonSerializer(data=request.data)
             if not serializer.is_valid():

@@ -58,7 +58,7 @@ class WebLessonGalleryView(viewsets.ViewSet):
     )
     def list(self, request):
         try:
-            logging.getLogger().info("WebLessonGalleryView.list")
+            logging.getLogger().info("WebLessonGalleryView.list params=%s", request.query_params)
             lesson_id = request.query_params.get('lesson')
             module_id = request.query_params.get('module')
             class_room_id = request.query_params.get('class_room')
@@ -83,7 +83,7 @@ class WebLessonGalleryView(viewsets.ViewSet):
             serializer = LessonGallerySerializer(galleries, many=True)
             return RestResponse(data=serializer.data, status=status.HTTP_200_OK).response
         except Exception as e:
-            logging.getLogger().exception("WebLessonGalleryView.list exc=%s", e)
+            logging.getLogger().exception("WebLessonGalleryView.list exc=%s, params=%s", e, request.query_params)
             return RestResponse(data={"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR).response
 
     @swagger_auto_schema(
