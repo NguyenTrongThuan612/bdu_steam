@@ -1,7 +1,8 @@
 import logging
 from django.utils import timezone
 from rest_framework import viewsets, status
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.decorators import action
+from rest_framework.parsers import MultiPartParser  
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
@@ -19,10 +20,9 @@ from steam_api.middlewares.web_authentication import WebUserAuthentication
 
 class WebClassRoomView(viewsets.ViewSet):
     authentication_classes = (WebUserAuthentication,)
-    parser_classes = (MultiPartParser, FormParser)
     
     def get_permissions(self):
-        if self.action in ['create', 'update', 'destroy']:
+        if self.action in ['create', 'update', 'destroy', 'set_thumbnail']:
             return [IsManager()]
         return [IsNotRoot()]
 
@@ -99,15 +99,6 @@ class WebClassRoomView(viewsets.ViewSet):
 
     @swagger_auto_schema(
         request_body=CreateClassRoomSerializer,
-        manual_parameters=[
-            openapi.Parameter(
-                'thumbnail',
-                openapi.IN_FORM,
-                type=openapi.TYPE_FILE,
-                required=False,
-                description='Class thumbnail image'
-            )
-        ],
         responses={
             201: ClassRoomSerializer(),
             400: 'Bad Request',
@@ -130,9 +121,6 @@ class WebClassRoomView(viewsets.ViewSet):
             if not serializer.is_valid():
                 return RestResponse(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST).response
 
-            if 'thumbnail' in request.FILES:
-                serializer.validated_data['thumbnail'] = request.FILES['thumbnail']
-
             class_room = serializer.save()
             response_serializer = ClassRoomSerializer(class_room)
             
@@ -143,15 +131,6 @@ class WebClassRoomView(viewsets.ViewSet):
 
     @swagger_auto_schema(
         request_body=UpdateClassRoomSerializer,
-        manual_parameters=[
-            openapi.Parameter(
-                'thumbnail',
-                openapi.IN_FORM,
-                type=openapi.TYPE_FILE,
-                required=False,
-                description='Class thumbnail image'
-            )
-        ],
         responses={
             200: ClassRoomSerializer(),
             400: 'Bad Request',
@@ -179,9 +158,6 @@ class WebClassRoomView(viewsets.ViewSet):
             
             if not serializer.is_valid():
                 return RestResponse(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST).response
-
-            if 'thumbnail' in request.FILES:
-                serializer.validated_data['thumbnail'] = request.FILES['thumbnail']
 
             updated_class = serializer.save()
             response_serializer = ClassRoomSerializer(updated_class)
@@ -221,4 +197,53 @@ class WebClassRoomView(viewsets.ViewSet):
             return RestResponse(status=status.HTTP_204_NO_CONTENT).response
         except Exception as e:
             logging.getLogger().exception("WebClassRoomView.destroy exc=%s, pk=%s", e, pk)
+            return RestResponse(data={"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR).response
+
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                'thumbnail',
+                openapi.IN_FORM,
+                type=openapi.TYPE_FILE,
+                required=True,
+                description='Class thumbnail image'
+            )
+        ],
+        responses={
+            200: ClassRoomSerializer(),
+            400: 'Bad Request',
+            404: 'Not Found',
+            500: openapi.Response(
+                description='Internal Server Error',
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'error': openapi.Schema(type=openapi.TYPE_STRING)
+                    }
+                )
+            )
+        }
+    )
+    @action(detail=True, methods=['post'], parser_classes=[MultiPartParser], url_path='thumbnail')
+    def set_thumbnail(self, request, pk=None):
+        try:
+            logging.getLogger().info("WebClassRoomView.set_thumbnail pk=%s", pk)
+            try:
+                class_room = ClassRoom.objects.get(pk=pk, deleted_at__isnull=True)
+            except ClassRoom.DoesNotExist:
+                return RestResponse(status=status.HTTP_404_NOT_FOUND).response
+
+            if 'thumbnail' not in request.FILES:
+                return RestResponse(
+                    data={"error": "No thumbnail file provided"}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                ).response
+
+            class_room.thumbnail = request.FILES['thumbnail']
+            class_room.save(update_fields=['thumbnail'])
+            
+            serializer = ClassRoomSerializer(class_room)
+            return RestResponse(data=serializer.data, status=status.HTTP_200_OK).response
+        except Exception as e:
+            logging.getLogger().exception("WebClassRoomView.set_thumbnail exc=%s, pk=%s", e, pk)
             return RestResponse(data={"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR).response 

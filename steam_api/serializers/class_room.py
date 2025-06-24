@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from steam_api.models.class_room import ClassRoom
-from steam_api.helpers.firebase_storage import upload_image_to_firebase
 from steam_api.serializers.web_user import WebUserSerializer
 from steam_api.models.web_user import WebUser, WebUserRole, WebUserStatus
 from steam_api.models.course import Course
@@ -13,10 +12,9 @@ class ClassRoomSerializer(serializers.ModelSerializer):
         model = ClassRoom
         fields = ['id', 'name', 'description', 'thumbnail_url', 'course', 'teacher', 'teaching_assistant',
                  'max_students', 'start_date', 'end_date', 'schedule', 'total_sessions', 'is_active', 'created_at', 'updated_at']
-        read_only_fields = ['id', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'created_at', 'updated_at', 'thumbnail_url']
 
 class CreateClassRoomSerializer(serializers.ModelSerializer):
-    thumbnail = serializers.ImageField(write_only=True, required=False)
     teacher = serializers.PrimaryKeyRelatedField(
         queryset=WebUser.objects.filter(role=WebUserRole.TEACHER, status=WebUserStatus.ACTIVATED),
         required=False,
@@ -33,7 +31,7 @@ class CreateClassRoomSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = ClassRoom
-        fields = ['name', 'description', 'thumbnail', 'course', 'teacher', 'teaching_assistant', 'max_students',
+        fields = ['name', 'description', 'course', 'teacher', 'teaching_assistant', 'max_students',
                  'start_date', 'end_date', 'schedule', 'total_sessions']
 
     def validate(self, data):
@@ -51,20 +49,7 @@ class CreateClassRoomSerializer(serializers.ModelSerializer):
             
         return data
 
-    def create(self, validated_data):
-        thumbnail = validated_data.pop('thumbnail', None)
-        
-        if thumbnail:
-            try:
-                thumbnail_url = upload_image_to_firebase(thumbnail)
-                validated_data['thumbnail_url'] = thumbnail_url
-            except Exception as e:
-                raise serializers.ValidationError({'thumbnail': str(e)})
-                
-        return super().create(validated_data)
-
 class UpdateClassRoomSerializer(serializers.ModelSerializer):
-    thumbnail = serializers.ImageField(write_only=True, required=False)
     teacher = serializers.PrimaryKeyRelatedField(
         queryset=WebUser.objects.filter(role=WebUserRole.TEACHER, status=WebUserStatus.ACTIVATED),
         required=False,
@@ -78,7 +63,7 @@ class UpdateClassRoomSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = ClassRoom
-        fields = ['name', 'description', 'thumbnail', 'teacher', 'teaching_assistant',
+        fields = ['name', 'description', 'teacher', 'teaching_assistant',
                  'max_students', 'start_date', 'end_date', 'schedule', 'total_sessions', 'is_active']
         extra_kwargs = {
             'name': {'required': False},
@@ -114,18 +99,6 @@ class UpdateClassRoomSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({'total_sessions': 'Total sessions cannot be negative'})
             
         return data
-
-    def update(self, instance, validated_data):
-        thumbnail = validated_data.pop('thumbnail', None)
-        
-        if thumbnail:
-            try:
-                thumbnail_url = upload_image_to_firebase(thumbnail)
-                validated_data['thumbnail_url'] = thumbnail_url
-            except Exception as e:
-                raise serializers.ValidationError({'thumbnail': str(e)})
-                
-        return super().update(instance, validated_data)
 
 class ListClassRoomSerializer(serializers.ModelSerializer):
     teacher_name = serializers.CharField(source='teacher.full_name', read_only=True)
