@@ -51,7 +51,6 @@ class WebCourseModuleView(viewsets.ViewSet):
             logging.getLogger().info("WebCourseModuleView.list")
             class_room_id = request.query_params.get('class_room')
             
-            # Chỉ lấy các module của lớp mà giáo viên dạy
             modules = CourseModule.objects.filter(
                 class_room__teacher=request.user,
                 deleted_at__isnull=True
@@ -63,7 +62,6 @@ class WebCourseModuleView(viewsets.ViewSet):
             if class_room_id:
                 modules = modules.filter(class_room_id=class_room_id)
                 
-            # Sắp xếp theo thứ tự
             modules = modules.order_by('sequence_number')
                 
             serializer = ListCourseModuleSerializer(modules, many=True)
@@ -97,14 +95,6 @@ class WebCourseModuleView(viewsets.ViewSet):
             if not serializer.is_valid():
                 return RestResponse(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST).response
 
-            # Kiểm tra người dùng có phải là giáo viên của lớp không
-            class_room = serializer.validated_data['class_room']
-            if request.user not in [class_room.teacher, class_room.teaching_assistant]:
-                return RestResponse(
-                    data={"error": "You are not the teacher of this class"},
-                    status=status.HTTP_403_FORBIDDEN
-                ).response
-
             module = serializer.save()
             response_serializer = CourseModuleSerializer(module)
             return RestResponse(data=response_serializer.data, status=status.HTTP_201_CREATED).response
@@ -137,13 +127,6 @@ class WebCourseModuleView(viewsets.ViewSet):
                 module = CourseModule.objects.get(pk=pk, deleted_at__isnull=True)
             except CourseModule.DoesNotExist:
                 return RestResponse(status=status.HTTP_404_NOT_FOUND).response
-
-            # Kiểm tra người dùng có phải là giáo viên của lớp không
-            if request.user not in [module.class_room.teacher, module.class_room.teaching_assistant]:
-                return RestResponse(
-                    data={"error": "You are not the teacher of this class"},
-                    status=status.HTTP_403_FORBIDDEN
-                ).response
 
             serializer = UpdateCourseModuleSerializer(module, data=request.data, partial=True)
             
@@ -180,13 +163,6 @@ class WebCourseModuleView(viewsets.ViewSet):
                 module = CourseModule.objects.get(pk=pk, deleted_at__isnull=True)
             except CourseModule.DoesNotExist:
                 return RestResponse(status=status.HTTP_404_NOT_FOUND).response
-
-            # Kiểm tra người dùng có phải là giáo viên của lớp không
-            if request.user not in [module.class_room.teacher, module.class_room.teaching_assistant]:
-                return RestResponse(
-                    data={"error": "You are not the teacher of this class"},
-                    status=status.HTTP_403_FORBIDDEN
-                ).response
 
             module.deleted_at = timezone.now()
             module.save(update_fields=['deleted_at'])
