@@ -19,12 +19,12 @@ from steam_api.serializers.class_room import (
 from steam_api.middlewares.web_authentication import WebUserAuthentication
 
 class WebClassRoomView(viewsets.ViewSet):
-    # authentication_classes = (WebUserAuthentication,)
+    authentication_classes = (WebUserAuthentication,)
     
-    # def get_permissions(self):
-    #     if self.action in ['create', 'update', 'destroy', 'set_thumbnail']:
-    #         return [IsManager()]
-    #     return [IsNotRoot()]
+    def get_permissions(self):
+        if self.action in ['create', 'update', 'destroy', 'set_thumbnail']:
+            return [IsManager()]
+        return [IsNotRoot()]
 
     @swagger_auto_schema(
         manual_parameters=[

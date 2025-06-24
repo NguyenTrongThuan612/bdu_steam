@@ -5,9 +5,8 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
 from steam_api.helpers.response import RestResponse
-from steam_api.middlewares.permissions import IsTeacher
+from steam_api.middlewares.permissions import IsManager, IsNotRoot
 from steam_api.models.course_module import CourseModule
-from steam_api.models.web_user import WebUserRole
 from steam_api.serializers.course_module import (
     CourseModuleSerializer,
     CreateCourseModuleSerializer,
@@ -18,7 +17,11 @@ from steam_api.middlewares.web_authentication import WebUserAuthentication
 
 class WebCourseModuleView(viewsets.ViewSet):
     authentication_classes = (WebUserAuthentication,)
-    permission_classes = (IsTeacher,)
+
+    def get_permissions(self):
+        if self.action in ['create', 'update', 'destroy']:
+            return [IsManager()]
+        return [IsNotRoot()]
 
     @swagger_auto_schema(
         manual_parameters=[
