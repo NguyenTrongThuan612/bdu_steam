@@ -11,8 +11,7 @@ from steam_api.models.web_user import WebUserRole
 from steam_api.serializers.course_module import (
     CourseModuleSerializer,
     CreateCourseModuleSerializer,
-    UpdateCourseModuleSerializer,
-    ListCourseModuleSerializer
+    UpdateCourseModuleSerializer
 )
 from steam_api.middlewares.web_authentication import WebUserAuthentication
 
@@ -68,7 +67,7 @@ class WebCourseModuleView(viewsets.ViewSet):
                 
             modules = modules.order_by('sequence_number')
                 
-            serializer = ListCourseModuleSerializer(modules, many=True)
+            serializer = CourseModuleSerializer(modules, many=True)
             return RestResponse(data=serializer.data, status=status.HTTP_200_OK).response
         except Exception as e:
             logging.getLogger().exception("WebCourseModuleView.list exc=%s", e)

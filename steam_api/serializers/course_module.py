@@ -49,13 +49,3 @@ class UpdateCourseModuleSerializer(serializers.ModelSerializer):
     class Meta:
         model = CourseModule
         fields = ['name', 'description', 'total_lessons']
-
-class ListCourseModuleSerializer(serializers.ModelSerializer):
-    lesson_galleries_count = serializers.SerializerMethodField()
-    
-    class Meta:
-        model = CourseModule
-        fields = "__all__"
-        
-    def get_lesson_galleries_count(self, obj):
-        return obj.lesson_galleries.count() 
