@@ -34,7 +34,7 @@ class WebCourseModuleView(viewsets.ViewSet):
             )
         ],
         responses={
-            200: ListCourseModuleSerializer(many=True),
+            200: CourseModuleSerializer(many=True),
             500: openapi.Response(
                 description='Internal Server Error',
                 schema=openapi.Schema(
