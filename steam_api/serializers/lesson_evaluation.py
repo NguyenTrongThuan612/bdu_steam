@@ -11,15 +11,7 @@ class LessonEvaluationSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = LessonEvaluation
-        fields = [
-            'id', 'lesson', 'student', 'class_room_name', 'module_name',
-            'focus_score', 'punctuality_score', 'interaction_score', 'project_idea_score',
-            'critical_thinking_score', 'teamwork_score', 'idea_sharing_score',
-            'creativity_score', 'communication_score', 'homework_score',
-            'old_knowledge_score', 'new_knowledge_score', 'comment',
-            'created_at', 'updated_at'
-        ]
-        read_only_fields = ['id', 'created_at', 'updated_at']
+        fields = "__all__"
 
 class CreateLessonEvaluationSerializer(serializers.ModelSerializer):
     student = serializers.PrimaryKeyRelatedField(

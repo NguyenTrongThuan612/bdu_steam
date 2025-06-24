@@ -5,13 +5,7 @@ from steam_api.helpers.firebase_storage import upload_image_to_firebase
 class StudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Student
-        fields = [
-            'id', 'identification_number', 'first_name', 'last_name',
-            'date_of_birth', 'gender', 'address', 'phone_number', 'email',
-            'parent_name', 'parent_phone', 'parent_email', 'note',
-            'avatar_url', 'is_active', 'created_at', 'updated_at'
-        ]
-        read_only_fields = ['id', 'created_at', 'updated_at']
+        fields = "__all__"
 
 class CreateStudentSerializer(serializers.ModelSerializer):
     avatar = serializers.ImageField(write_only=True, required=False)

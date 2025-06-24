@@ -6,8 +6,7 @@ from steam_api.models.lesson import Lesson
 class LessonGallerySerializer(serializers.ModelSerializer):
     class Meta:
         model = LessonGallery
-        fields = ['id', 'lesson', 'image_urls', 'created_at']
-        read_only_fields = ['id', 'created_at']
+        fields = "__all__"
 
 class CreateLessonGallerySerializer(serializers.ModelSerializer):
     image = serializers.ImageField(write_only=True)

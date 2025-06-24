@@ -11,12 +11,7 @@ class CourseRegistrationSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = CourseRegistration
-        fields = [
-            'id', 'student', 'class_room', 'status', 
-            'amount', 'paid_amount', 'payment_method', 'payment_status',
-            'note', 'created_at', 'updated_at'
-        ]
-        read_only_fields = ['id', 'created_at', 'updated_at']
+        fields = "__all__"
 
 class CreateCourseRegistrationSerializer(serializers.ModelSerializer):
     student = serializers.PrimaryKeyRelatedField(

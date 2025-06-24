@@ -2,7 +2,7 @@ import logging
 from django.utils import timezone
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
-from rest_framework.parsers import MultiPartParser  
+from rest_framework.parsers import MultiPartParser
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
@@ -19,12 +19,12 @@ from steam_api.serializers.class_room import (
 from steam_api.middlewares.web_authentication import WebUserAuthentication
 
 class WebClassRoomView(viewsets.ViewSet):
-    authentication_classes = (WebUserAuthentication,)
+    # authentication_classes = (WebUserAuthentication,)
     
-    def get_permissions(self):
-        if self.action in ['create', 'update', 'destroy', 'set_thumbnail']:
-            return [IsManager()]
-        return [IsNotRoot()]
+    # def get_permissions(self):
+    #     if self.action in ['create', 'update', 'destroy', 'set_thumbnail']:
+    #         return [IsManager()]
+    #     return [IsNotRoot()]
 
     @swagger_auto_schema(
         manual_parameters=[
@@ -59,8 +59,8 @@ class WebClassRoomView(viewsets.ViewSet):
             if course_id:
                 classes = classes.filter(course_id=course_id)
             
-            if request.user.role == WebUserRole.TEACHER:
-                classes = classes.filter(teacher=request.user) | classes.filter(teaching_assistant=request.user)
+            # if request.user.role == WebUserRole.TEACHER:
+            #     classes = classes.filter(teacher=request.user) | classes.filter(teaching_assistant=request.user)
                 
             serializer = ListClassRoomSerializer(classes, many=True)
             return RestResponse(data=serializer.data, status=status.HTTP_200_OK).response

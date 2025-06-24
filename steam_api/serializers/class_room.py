@@ -107,7 +107,7 @@ class ListClassRoomSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = ClassRoom
-        fields = ['id', 'name', 'total_sessions', 'start_date', 'teacher_name', 'assistant_name', 'student_count']
+        fields = "__all__"
         
     def get_student_count(self, obj):
         return obj.students.count() if hasattr(obj, 'students') else 0 

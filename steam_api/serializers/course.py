@@ -5,8 +5,7 @@ from steam_api.helpers.firebase_storage import upload_image_to_firebase
 class CourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
-        fields = ['id', 'name', 'description', 'thumbnail_url', 'price', 'duration', 'is_active', 'created_at', 'updated_at']
-        read_only_fields = ['id', 'created_at', 'updated_at']
+        fields = "__all__"
 
 class CreateCourseSerializer(serializers.ModelSerializer):
     thumbnail = serializers.ImageField(write_only=True, required=False)

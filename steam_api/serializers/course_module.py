@@ -6,8 +6,7 @@ from steam_api.models.class_room import ClassRoom
 class CourseModuleSerializer(serializers.ModelSerializer):
     class Meta:
         model = CourseModule
-        fields = ['id', 'class_room', 'name', 'description', 'sequence_number', 'total_lessons', 'created_at', 'updated_at']
-        read_only_fields = ['created_at', 'updated_at']
+        fields = "__all__"
 
 class CreateCourseModuleSerializer(serializers.ModelSerializer):
     lesson_names = serializers.ListField(
@@ -56,7 +55,7 @@ class ListCourseModuleSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = CourseModule
-        fields = ['id', 'name', 'sequence_number', 'total_lessons', 'lesson_galleries_count']
+        fields = "__all__"
         
     def get_lesson_galleries_count(self, obj):
         return obj.lesson_galleries.count() 
