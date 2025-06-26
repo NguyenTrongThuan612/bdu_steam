@@ -66,7 +66,7 @@ class WebCourseRegistrationView(viewsets.ViewSet):
             logging.getLogger().info("WebCourseRegistrationView.list params=%s", request.query_params)
             student_id = request.query_params.get('student')
             class_room_id = request.query_params.get('class_room')
-            status = request.query_params.get('status')
+            status_param = request.query_params.get('status')
             
             registrations = CourseRegistration.objects.filter(deleted_at__isnull=True)
             
@@ -76,10 +76,9 @@ class WebCourseRegistrationView(viewsets.ViewSet):
             if class_room_id:
                 registrations = registrations.filter(class_room_id=class_room_id)
                 
-            if status:
-                registrations = registrations.filter(status=status)
+            if status_param:
+                registrations = registrations.filter(status=status_param)
                 
-            # Sắp xếp theo thời gian tạo, mới nhất lên đầu
             registrations = registrations.order_by('-created_at')
                 
             serializer = CourseRegistrationSerializer(registrations, many=True)
