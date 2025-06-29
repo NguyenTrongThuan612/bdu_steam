@@ -11,7 +11,7 @@ from steam_api.models.web_user import WebUser, WebUserRole, WebUserStatus
 from steam_api.serializers.web_user import WebUserSerializer
 
 class UserView(viewsets.ViewSet):
-    # authentication_classes = (WebUserAuthentication,)
+    authentication_classes = (WebUserAuthentication,)
 
     @swagger_auto_schema(
         manual_parameters=[
