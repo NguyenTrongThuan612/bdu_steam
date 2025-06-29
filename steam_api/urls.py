@@ -12,6 +12,7 @@ from steam_api.views.web.course_module import WebCourseModuleView
 from steam_api.views.web.lesson_evaluation import WebLessonEvaluationView
 from steam_api.views.web.evaluation_criteria import EvaluationCriteriaView
 from steam_api.views.web.lesson import WebLessonView
+from steam_api.views.web.user import UserView
 from steam_api.views.web.course_registration import WebCourseRegistrationView
 from steam_api.views.health import HealthCheckView
 
@@ -21,6 +22,7 @@ app_router.register('auth', AppAuthView, "app_auth")
 web_router = SimpleRouter(trailing_slash=False)
 web_router.register('root', RootView, "web_user")
 web_router.register('auth', WebAuthView, "web_auth")
+web_router.register('users', UserView, "users")
 web_router.register('courses', WebCourseView, "courses")
 web_router.register('lessons', WebLessonView, "lessons")
 web_router.register('classes', WebClassRoomView, "classes")
