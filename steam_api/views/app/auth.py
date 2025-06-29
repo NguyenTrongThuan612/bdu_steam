@@ -45,8 +45,9 @@ class AppAuthView(viewsets.ViewSet):
             user_id = resp_data["id"]
             user_name = resp_data.get("name", "")
             user_avatar_url = resp_data.get("picture", {}).get("data", {}).get("url", "")
+            user_phone_number = resp_data.get("phone", {}).get("data", {}).get("value", "")
 
-            if not self.__create_app_user(user_id, user_name, user_avatar_url):
+            if not self.__create_app_user(user_id, user_name, user_avatar_url, user_phone_number):
                 return RestResponse(status=status.HTTP_500_INTERNAL_SERVER_ERROR).response
             
             self.__create_access_token(user_id, access_token)
@@ -56,7 +57,7 @@ class AppAuthView(viewsets.ViewSet):
             logging.getLogger().exception("AppAuthView.register_session exc=%s, req=%s", e, request.data)
             return RestResponse(status=status.HTTP_500_INTERNAL_SERVER_ERROR).response
         
-    def __create_app_user(self, user_id, user_name, user_avatar_url):
+    def __create_app_user(self, user_id, user_name, user_avatar_url, user_phone_number):
         try:
             try:
                 user = AppUser.objects.get(app_user_id=user_id)
@@ -67,7 +68,8 @@ class AppAuthView(viewsets.ViewSet):
             user = AppUser(
                 app_user_id=user_id,
                 name=user_name,
-                avatar_url=user_avatar_url
+                avatar_url=user_avatar_url,
+                phone_number=user_phone_number
             )
             user.save()
 

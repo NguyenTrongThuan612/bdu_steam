@@ -14,10 +14,13 @@ from steam_api.views.web.evaluation_criteria import EvaluationCriteriaView
 from steam_api.views.web.lesson import WebLessonView
 from steam_api.views.web.user import UserView
 from steam_api.views.web.course_registration import WebCourseRegistrationView
+from steam_api.views.web.student_registration import WebStudentRegistrationView
+from steam_api.views.app.student_registration import AppStudentRegistrationView
 from steam_api.views.health import HealthCheckView
 
 app_router = SimpleRouter(trailing_slash=False)
 app_router.register('auth', AppAuthView, "app_auth")
+app_router.register('student-registrations', AppStudentRegistrationView, "app_student_registrations")
 
 web_router = SimpleRouter(trailing_slash=False)
 web_router.register('root', RootView, "web_user")
@@ -31,6 +34,7 @@ web_router.register('lesson-galleries', WebLessonGalleryView, "lesson_galleries"
 web_router.register('course-modules', WebCourseModuleView, "course_modules")
 web_router.register('lesson-evaluations', WebLessonEvaluationView, "lesson_evaluations")
 web_router.register('course-registrations', WebCourseRegistrationView, "course_registrations")
+web_router.register('student-registrations', WebStudentRegistrationView, "web_student_registrations")
 
 urlpatterns = [
    path('app/', include(app_router.urls)),

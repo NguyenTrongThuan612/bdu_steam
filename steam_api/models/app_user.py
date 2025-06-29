@@ -8,3 +8,4 @@ class AppUser(models.Model):
     app_user_id = models.CharField(max_length=255, unique=True)
     name = models.CharField(max_length=255)
     avatar_url = models.CharField(max_length=255)
+    phone_number = models.CharField(max_length=20, default="")
