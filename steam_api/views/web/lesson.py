@@ -8,12 +8,16 @@ from django.db import transaction
 from steam_api.helpers.response import RestResponse
 from steam_api.models.lesson import Lesson
 from steam_api.serializers.lesson import LessonSerializer, UpdateLessonSerializer, CreateLessonSerializer
-from steam_api.middlewares.permissions import IsManager
+from steam_api.middlewares.permissions import IsManager, IsNotRoot
 from steam_api.middlewares.web_authentication import WebUserAuthentication
 
 class WebLessonView(viewsets.ViewSet):
-    # authentication_classes = (WebUserAuthentication,)
-    # permission_classes = (IsManager,)
+    authentication_classes = (WebUserAuthentication,)
+
+    def get_permissions(self):
+        if self.action in ['create', 'update', 'destroy']:
+            return [IsManager()]
+        return [IsNotRoot()]
 
     @swagger_auto_schema(
         manual_parameters=[

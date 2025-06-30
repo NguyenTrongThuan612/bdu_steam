@@ -5,9 +5,8 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
 from steam_api.helpers.response import RestResponse
-from steam_api.middlewares.permissions import IsTeacher
+from steam_api.middlewares.permissions import IsTeacher, IsNotRoot
 from steam_api.models.lesson_gallery import LessonGallery
-from steam_api.models.web_user import WebUserRole
 from steam_api.serializers.lesson_gallery import (
     LessonGallerySerializer,
     CreateLessonGallerySerializer
@@ -16,8 +15,12 @@ from steam_api.middlewares.web_authentication import WebUserAuthentication
 
 class WebLessonGalleryView(viewsets.ViewSet):
     authentication_classes = (WebUserAuthentication,)
-    permission_classes = (IsTeacher,)
     parser_classes = (MultiPartParser, FormParser)
+
+    def get_permissions(self):
+        if self.action in ['create']:
+            return [IsTeacher()]
+        return [IsNotRoot()]
 
     @swagger_auto_schema(
         manual_parameters=[

@@ -5,7 +5,7 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
 from steam_api.helpers.response import RestResponse
-from steam_api.middlewares.permissions import IsTeacher, IsManager
+from steam_api.middlewares.permissions import IsTeacher, IsNotRoot
 from steam_api.models.lesson_evaluation import LessonEvaluation
 from steam_api.models.web_user import WebUserRole
 from steam_api.serializers.lesson_evaluation import (
@@ -21,7 +21,7 @@ class WebLessonEvaluationView(viewsets.ViewSet):
     def get_permissions(self):
         if self.action in ['create', 'update', 'destroy']:
             return [IsTeacher()]
-        return [IsManager()]
+        return [IsNotRoot()]
 
     @swagger_auto_schema(
         manual_parameters=[
