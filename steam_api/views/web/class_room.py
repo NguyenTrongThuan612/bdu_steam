@@ -13,8 +13,7 @@ from steam_api.models.web_user import WebUserRole
 from steam_api.serializers.class_room import (
     ClassRoomSerializer,
     CreateClassRoomSerializer,
-    UpdateClassRoomSerializer,
-    ListClassRoomSerializer
+    UpdateClassRoomSerializer
 )
 from steam_api.middlewares.web_authentication import WebUserAuthentication
 
@@ -37,7 +36,7 @@ class WebClassRoomView(viewsets.ViewSet):
             )
         ],
         responses={
-            200: ListClassRoomSerializer(many=True),
+            200: ClassRoomSerializer(many=True),
             500: openapi.Response(
                 description='Internal Server Error',
                 schema=openapi.Schema(
@@ -62,7 +61,7 @@ class WebClassRoomView(viewsets.ViewSet):
             # if request.user.role == WebUserRole.TEACHER:
             #     classes = classes.filter(teacher=request.user) | classes.filter(teaching_assistant=request.user)
                 
-            serializer = ListClassRoomSerializer(classes, many=True)
+            serializer = ClassRoomSerializer(classes, many=True)
             return RestResponse(data=serializer.data, status=status.HTTP_200_OK).response
         except Exception as e:
             logging.getLogger().exception("WebClassRoomView.list exc=%s, params=%s", e, request.query_params)

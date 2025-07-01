@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from steam_api.models.class_room import ClassRoom
+from steam_api.serializers.student import StudentSerializer
 from steam_api.serializers.web_user import WebUserSerializer
 from steam_api.models.web_user import WebUser, WebUserRole, WebUserStatus
 from steam_api.models.course import Course
@@ -7,12 +8,11 @@ from steam_api.models.course import Course
 class ClassRoomSerializer(serializers.ModelSerializer):
     teacher = WebUserSerializer(read_only=True)
     teaching_assistant = WebUserSerializer(read_only=True)
+    students = StudentSerializer(source='approved_students', many=True, read_only=True)
     
     class Meta:
         model = ClassRoom
-        fields = ['id', 'name', 'description', 'thumbnail_url', 'course', 'teacher', 'teaching_assistant',
-                 'max_students', 'start_date', 'end_date', 'schedule', 'total_sessions', 'is_active', 'created_at', 'updated_at']
-        read_only_fields = ['id', 'created_at', 'updated_at', 'thumbnail_url']
+        fields = "__all__"
 
 class CreateClassRoomSerializer(serializers.ModelSerializer):
     teacher = serializers.PrimaryKeyRelatedField(
@@ -99,15 +99,3 @@ class UpdateClassRoomSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({'total_sessions': 'Total sessions cannot be negative'})
             
         return data
-
-class ListClassRoomSerializer(serializers.ModelSerializer):
-    teacher_name = serializers.CharField(source='teacher.full_name', read_only=True)
-    assistant_name = serializers.CharField(source='teaching_assistant.full_name', read_only=True)
-    student_count = serializers.SerializerMethodField()
-    
-    class Meta:
-        model = ClassRoom
-        fields = "__all__"
-        
-    def get_student_count(self, obj):
-        return obj.students.count() if hasattr(obj, 'students') else 0 

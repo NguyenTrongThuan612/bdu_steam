@@ -19,7 +19,6 @@ class ClassRoom(models.Model):
     start_date = models.DateField()
     end_date = models.DateField()
     schedule = models.JSONField(help_text="Weekly schedule in JSON format", null=True, blank=True)
-    students = models.ManyToManyField(Student, related_name='enrolled_classes', blank=True)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -31,4 +30,25 @@ class ClassRoom(models.Model):
     @property
     def total_sessions(self):
         """Tổng số buổi học của lớp, được tính từ tổng số buổi học của các module"""
-        return sum(module.total_lessons for module in self.modules.filter(deleted_at__isnull=True)) 
+        return sum(module.total_lessons for module in self.modules.filter(deleted_at__isnull=True))
+
+    @property
+    def approved_students(self):
+        """Lấy danh sách học sinh đã được chấp nhận vào lớp"""
+        return Student.objects.filter(
+            registrations__class_room=self,
+            registrations__status='approved',
+            registrations__deleted_at__isnull=True,
+            is_active=True,
+            deleted_at__isnull=True
+        )
+
+    @property
+    def current_students_count(self):
+        """Số lượng học sinh hiện tại trong lớp (đã được chấp nhận)"""
+        return self.approved_students.count()
+
+    @property
+    def available_slots(self):
+        """Số lượng slot còn trống trong lớp"""
+        return max(0, self.max_students - self.current_students_count) 
