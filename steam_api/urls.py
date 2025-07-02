@@ -15,6 +15,7 @@ from steam_api.views.web.lesson import WebLessonView
 from steam_api.views.web.user import WebUserView
 from steam_api.views.web.course_registration import WebCourseRegistrationView
 from steam_api.views.web.student_registration import WebStudentRegistrationView
+from steam_api.views.web.attendance import WebAttendanceView
 from steam_api.views.app.student_registration import AppStudentRegistrationView
 from steam_api.views.health import HealthCheckView
 
@@ -35,6 +36,7 @@ web_router.register('course-modules', WebCourseModuleView, "course_modules")
 web_router.register('lesson-evaluations', WebLessonEvaluationView, "lesson_evaluations")
 web_router.register('course-registrations', WebCourseRegistrationView, "course_registrations")
 web_router.register('student-registrations', WebStudentRegistrationView, "web_student_registrations")
+web_router.register('attendances', WebAttendanceView, "web_attendances")
 
 urlpatterns = [
    path('app/', include(app_router.urls)),
