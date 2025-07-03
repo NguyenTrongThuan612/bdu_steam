@@ -7,10 +7,10 @@ from drf_yasg import openapi
 from steam_api.helpers.response import RestResponse
 from steam_api.middlewares.web_authentication import WebUserAuthentication
 from steam_api.middlewares.permissions import IsManager
-from steam_api.models.student_registration_request import StudentRegistrationRequest, StudentRegistrationRequestStatus
-from steam_api.serializers.student_registration_request import (
-    StudentRegistrationRequestSerializer,
-    UpdateStudentRegistrationRequestStatusSerializer
+from steam_api.models.student_registration import StudentRegistration, StudentRegistrationStatus
+from steam_api.serializers.student_registration import (
+    StudentRegistrationSerializer,
+    UpdateStudentRegistrationStatusSerializer
 )
 
 class WebStudentRegistrationView(viewsets.ViewSet):
@@ -24,7 +24,7 @@ class WebStudentRegistrationView(viewsets.ViewSet):
                 openapi.IN_QUERY,
                 description='Filter by request status',
                 type=openapi.TYPE_STRING,
-                enum=StudentRegistrationRequestStatus.values,
+                enum=StudentRegistrationStatus.values,
                 required=False
             ),
             openapi.Parameter(
@@ -36,7 +36,7 @@ class WebStudentRegistrationView(viewsets.ViewSet):
             )
         ],
         responses={
-            200: StudentRegistrationRequestSerializer(many=True),
+            200: StudentRegistrationSerializer(many=True),
             500: 'Internal Server Error'
         }
     )
@@ -46,7 +46,7 @@ class WebStudentRegistrationView(viewsets.ViewSet):
             status_param = request.query_params.get('status')
             search = request.query_params.get('search', '')
             
-            requests = StudentRegistrationRequest.objects.filter(deleted_at__isnull=True)
+            requests = StudentRegistration.objects.filter(deleted_at__isnull=True)
             
             if status_param:
                 requests = requests.filter(status=status_param)
@@ -60,16 +60,16 @@ class WebStudentRegistrationView(viewsets.ViewSet):
                 
             requests = requests.order_by('-created_at')
                 
-            serializer = StudentRegistrationRequestSerializer(requests, many=True)
+            serializer = StudentRegistrationSerializer(requests, many=True)
             return RestResponse(data=serializer.data, status=status.HTTP_200_OK).response
         except Exception as e:
             logging.getLogger().exception("WebStudentRegistrationView.list exc=%s", e)
             return RestResponse(data={"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR).response
 
     @swagger_auto_schema(
-        request_body=UpdateStudentRegistrationRequestStatusSerializer,
+        request_body=UpdateStudentRegistrationStatusSerializer,
         responses={
-            200: StudentRegistrationRequestSerializer(),
+            200: StudentRegistrationSerializer(),
             400: 'Bad Request - Invalid data',
             404: 'Not Found',
             500: 'Internal Server Error'
@@ -80,18 +80,18 @@ class WebStudentRegistrationView(viewsets.ViewSet):
             logging.getLogger().info("WebStudentRegistrationView.update pk=%s, req=%s", pk, request.data)
             
             try:
-                registration_request = StudentRegistrationRequest.objects.get(
+                registration_request = StudentRegistration.objects.get(
                     pk=pk,
                     deleted_at__isnull=True,
-                    status=StudentRegistrationRequestStatus.PENDING
+                    status=StudentRegistrationStatus.PENDING
                 )
-            except StudentRegistrationRequest.DoesNotExist:
+            except StudentRegistration.DoesNotExist:
                 return RestResponse(
                     message="Registration request not found or already processed",
                     status=status.HTTP_404_NOT_FOUND
                 ).response
             
-            serializer = UpdateStudentRegistrationRequestStatusSerializer(
+            serializer = UpdateStudentRegistrationStatusSerializer(
                 registration_request,
                 data=request.data,
                 partial=True
@@ -101,7 +101,7 @@ class WebStudentRegistrationView(viewsets.ViewSet):
                 return RestResponse(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST).response
                 
             updated_request = serializer.save()
-            response_serializer = StudentRegistrationRequestSerializer(updated_request)
+            response_serializer = StudentRegistrationSerializer(updated_request)
             
             return RestResponse(
                 data=response_serializer.data,

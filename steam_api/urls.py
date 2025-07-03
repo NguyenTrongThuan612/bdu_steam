@@ -2,6 +2,13 @@ from django.urls import path, include
 from rest_framework.routers import SimpleRouter, DefaultRouter
 
 from steam_api.views.app.auth import AppAuthView
+from steam_api.views.app.student_registration import AppStudentRegistrationView
+from steam_api.views.app.class_room import AppClassRoomView
+from steam_api.views.app.course_module import AppCourseModuleView
+from steam_api.views.app.lesson import AppLessonView
+from steam_api.views.app.attendance import AppAttendanceView
+from steam_api.views.app.lesson_gallery import AppLessonGalleryView
+from steam_api.views.app.lesson_evaluation import AppLessonEvaluationView
 from steam_api.views.web.auth import WebAuthView
 from steam_api.views.web.root import RootView
 from steam_api.views.web.course import WebCourseView
@@ -16,12 +23,17 @@ from steam_api.views.web.user import WebUserView
 from steam_api.views.web.course_registration import WebCourseRegistrationView
 from steam_api.views.web.student_registration import WebStudentRegistrationView
 from steam_api.views.web.attendance import WebAttendanceView
-from steam_api.views.app.student_registration import AppStudentRegistrationView
 from steam_api.views.health import HealthCheckView
 
 app_router = SimpleRouter(trailing_slash=False)
 app_router.register('auth', AppAuthView, "app_auth")
 app_router.register('student-registrations', AppStudentRegistrationView, "app_student_registrations")
+app_router.register('classes', AppClassRoomView, "app_classes")
+app_router.register('course-modules', AppCourseModuleView, "app_course_modules")
+app_router.register('lessons', AppLessonView, "app_lessons")
+app_router.register('attendances', AppAttendanceView, "app_attendances")
+app_router.register('lesson-galleries', AppLessonGalleryView, "app_lesson_galleries")
+app_router.register('lesson-evaluations', AppLessonEvaluationView, "app_lesson_evaluations")
 
 web_router = SimpleRouter(trailing_slash=False)
 web_router.register('root/users', RootView, "web_root_users")
