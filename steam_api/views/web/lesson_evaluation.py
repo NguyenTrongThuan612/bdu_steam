@@ -132,7 +132,7 @@ class WebLessonEvaluationView(viewsets.ViewSet):
             student = serializer.validated_data['student']
             
             # Kiểm tra xem học viên có thuộc lớp học không
-            if student not in lesson.module.class_room.students.all():
+            if student not in lesson.module.class_room.approved_students:
                 return RestResponse(
                     data={"error": "Student is not enrolled in this class"},
                     status=status.HTTP_400_BAD_REQUEST

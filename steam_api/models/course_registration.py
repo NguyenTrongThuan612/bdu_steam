@@ -50,7 +50,4 @@ class CourseRegistration(models.Model):
         else:
             self.payment_status = 'unpaid'
             
-        if self.status == 'approved' and self.payment_status == 'fully_paid':
-            self.class_room.students.add(self.student)
-            
         super().save(*args, **kwargs) 
