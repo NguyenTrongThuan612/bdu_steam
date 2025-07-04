@@ -117,7 +117,7 @@ class EvaluationCriteriaView(APIView):
             },
             {
                 "name": "Kiến thức cũ",
-                "code": "prior_knowledge_score",
+                "code": "old_knowledge_score",
                 "options": [
                     {"score": 1, "label": "Không nắm vững: Quên hoặc không hiểu các kiến thức đã học trước đó"},
                     {"score": 2, "label": "Nắm vững yếu: Nắm được một phần nhưng còn mơ hồ"},
