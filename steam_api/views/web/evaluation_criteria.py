@@ -9,7 +9,7 @@ class EvaluationCriteriaView(APIView):
                 "name": "Mức độ tập trung",
                 "code": "focus_score",
                 "options": [
-                    {"score": 1, "label": "Không tập trung: Thường xuyên mất tập trung, sao nhãng trong giờ học"},
+                    {"score": 1, "label": "Chưa tập trung: Thường xuyên mất tập trung, sao nhãng trong giờ học"},
                     {"score": 2, "label": "Ít tập trung: Thỉnh thoảng bị phân tán, cần nhắc nhở"},
                     {"score": 3, "label": "Tập trung khá: Duy trì được sự tập trung trong phần lớn thời gian"},
                     {"score": 4, "label": "Tập trung tốt: Rất chú ý, ít khi bị sao nhãng"},
@@ -22,7 +22,7 @@ class EvaluationCriteriaView(APIView):
                 "options": [
                     {"score": 1, "label": "Thường xuyên đi muộn/về sớm: Rất ít khi đúng giờ"},
                     {"score": 2, "label": "Hay đi muộn/về sớm: Thường xuyên đến muộn hoặc về sớm"},
-                    {"score": 3, "label": "Thỉnh thoảng đi muộn/về sớm: Có một vài lần không đúng giờ"},
+                    {"score": 3, "label": "Thỉnh thoảng đi muộn/về sớm: Có một vài lần chưa đúng giờ"},
                     {"score": 4, "label": "Hiếm khi đi muộn/về sớm: Gần như luôn đúng giờ"},
                     {"score": 5, "label": "Luôn đúng giờ: Chưa bao giờ đi muộn hay về sớm"}
                 ]
@@ -31,8 +31,8 @@ class EvaluationCriteriaView(APIView):
                 "name": "Mức độ tương tác",
                 "code": "interaction_score",
                 "options": [
-                    {"score": 1, "label": "Thụ động: Không đặt câu hỏi, không tham gia thảo luận"},
-                    {"score": 2, "label": "Ít tương tác: Hầu như không tham gia, chỉ trả lời khi được hỏi"},
+                    {"score": 1, "label": "Thụ động: Chưa đặt câu hỏi, chưa tham gia thảo luận"},
+                    {"score": 2, "label": "Ít tương tác: Hầu như chưa tham gia, chỉ trả lời khi được hỏi"},
                     {"score": 3, "label": "Tương tác trung bình: Tham gia khi có sự khuyến khích, đặt câu hỏi khi cần"},
                     {"score": 4, "label": "Tương tác tốt: Chủ động đặt câu hỏi, phát biểu ý kiến"},
                     {"score": 5, "label": "Tương tác xuất sắc: Luôn chủ động, tích cực tham gia xây dựng bài học"}
@@ -42,8 +42,8 @@ class EvaluationCriteriaView(APIView):
                 "name": "Ý tưởng dự án",
                 "code": "project_idea_score",
                 "options": [
-                    {"score": 1, "label": "Không có ý tưởng: Không thể đưa ra bất kỳ ý tưởng nào cho dự án"},
-                    {"score": 2, "label": "Ý tưởng kém chất lượng: Ý tưởng chung chung, thiếu tính khả thi hoặc không liên quan"},
+                    {"score": 1, "label": "Chưa có ý tưởng: Chưa thể đưa ra bất kỳ ý tưởng nào cho dự án"},
+                    {"score": 2, "label": "Ý tưởng kém chất lượng: Ý tưởng chung chung, thiếu tính khả thi hoặc chưa liên quan"},
                     {"score": 3, "label": "Ý tưởng trung bình: Có ý tưởng nhưng chưa thực sự độc đáo hoặc cần phát triển thêm"},
                     {"score": 4, "label": "Ý tưởng tốt: Có ý tưởng rõ ràng, có tiềm năng phát triển"},
                     {"score": 5, "label": "Ý tưởng xuất sắc: Độc đáo, sáng tạo, có tính ứng dụng cao và đột phá"}
@@ -53,7 +53,7 @@ class EvaluationCriteriaView(APIView):
                 "name": "Tư duy phản biện",
                 "code": "critical_thinking_score",
                 "options": [
-                    {"score": 1, "label": "Không có tư duy phản biện: Chấp nhận mọi thông tin mà không phân tích"},
+                    {"score": 1, "label": "Chưa có tư duy phản biện: Chấp nhận mọi thông tin mà chưa phân tích"},
                     {"score": 2, "label": "Tư duy phản biện yếu: Khó khăn trong việc đặt câu hỏi, phân tích vấn đề"},
                     {"score": 3, "label": "Tư duy phản biện trung bình: Có thể đặt câu hỏi nhưng phân tích còn hời hợt"},
                     {"score": 4, "label": "Tư duy phản biện tốt: Có khả năng phân tích, đánh giá thông tin và đưa ra lập luận"},
@@ -64,8 +64,8 @@ class EvaluationCriteriaView(APIView):
                 "name": "Hợp tác nhóm",
                 "code": "teamwork_score",
                 "options": [
-                    {"score": 1, "label": "Không hợp tác: Từ chối hoặc gây cản trở trong làm việc nhóm"},
-                    {"score": 2, "label": "Ít hợp tác: Tham gia miễn cưỡng, không đóng góp tích cực"},
+                    {"score": 1, "label": "Chưa hợp tác: Từ chối hoặc gây cản trở trong làm việc nhóm"},
+                    {"score": 2, "label": "Ít hợp tác: Tham gia miễn cưỡng, chưa đóng góp tích cực"},
                     {"score": 3, "label": "Hợp tác trung bình: Sẵn sàng làm việc nhóm nhưng chưa thực sự chủ động"},
                     {"score": 4, "label": "Hợp tác tốt: Tích cực tham gia, hỗ trợ các thành viên khác"},
                     {"score": 5, "label": "Hợp tác xuất sắc: Là nhân tố kết nối, thúc đẩy tinh thần làm việc nhóm"}
@@ -75,7 +75,7 @@ class EvaluationCriteriaView(APIView):
                 "name": "Chia sẻ ý tưởng",
                 "code": "idea_sharing_score",
                 "options": [
-                    {"score": 1, "label": "Không chia sẻ: Giữ ý tưởng cho riêng mình, không đóng góp"},
+                    {"score": 1, "label": "Chưa chia sẻ: Giữ ý tưởng cho riêng mình, chưa đóng góp"},
                     {"score": 2, "label": "Ít chia sẻ: Chỉ chia sẻ khi được yêu cầu, ngại bày tỏ"},
                     {"score": 3, "label": "Chia sẻ trung bình: Sẵn sàng chia sẻ nhưng chưa thực sự tự tin"},
                     {"score": 4, "label": "Chia sẻ tốt: Chủ động trình bày ý tưởng một cách rõ ràng"},
@@ -86,7 +86,7 @@ class EvaluationCriteriaView(APIView):
                 "name": "Sáng tạo",
                 "code": "creativity_score",
                 "options": [
-                    {"score": 1, "label": "Không sáng tạo: Chỉ làm theo những gì có sẵn, không có ý tưởng mới"},
+                    {"score": 1, "label": "Chưa sáng tạo: Chỉ làm theo những gì có sẵn, chưa có ý tưởng mới"},
                     {"score": 2, "label": "Ít sáng tạo: Khó khăn trong việc đưa ra giải pháp mới lạ"},
                     {"score": 3, "label": "Sáng tạo trung bình: Có khả năng tạo ra một số ý tưởng mới nhưng còn hạn chế"},
                     {"score": 4, "label": "Sáng tạo tốt: Thường xuyên đưa ra các ý tưởng và cách tiếp cận độc đáo"},
@@ -108,7 +108,7 @@ class EvaluationCriteriaView(APIView):
                 "name": "Bài tập về nhà",
                 "code": "homework_score",
                 "options": [
-                    {"score": 1, "label": "Không hoàn thành: Hầu như không làm hoặc nộp bài tập"},
+                    {"score": 1, "label": "Chưa hoàn thành: Hầu như chưa làm hoặc nộp bài tập"},
                     {"score": 2, "label": "Hoàn thành kém chất lượng: Làm bài tập qua loa, thiếu nghiêm túc"},
                     {"score": 3, "label": "Hoàn thành trung bình: Làm bài tập đầy đủ nhưng chất lượng chưa cao"},
                     {"score": 4, "label": "Hoàn thành tốt: Làm bài tập đầy đủ, chất lượng tốt, đúng hạn"},
@@ -119,7 +119,7 @@ class EvaluationCriteriaView(APIView):
                 "name": "Kiến thức cũ",
                 "code": "old_knowledge_score",
                 "options": [
-                    {"score": 1, "label": "Không nắm vững: Quên hoặc không hiểu các kiến thức đã học trước đó"},
+                    {"score": 1, "label": "Chưa nắm vững: Quên hoặc chưa hiểu các kiến thức đã học trước đó"},
                     {"score": 2, "label": "Nắm vững yếu: Nắm được một phần nhưng còn mơ hồ"},
                     {"score": 3, "label": "Nắm vững trung bình: Nhớ và hiểu các kiến thức cơ bản"},
                     {"score": 4, "label": "Nắm vững tốt: Hiểu sâu sắc và có thể ứng dụng kiến thức cũ"},
