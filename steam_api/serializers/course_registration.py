@@ -40,7 +40,7 @@ class CreateCourseRegistrationSerializer(serializers.ModelSerializer):
             pass
             
         class_room = data['class_room']
-        if class_room.students.count() >= class_room.max_students:
+        if class_room.current_students_count >= class_room.max_students:
             raise serializers.ValidationError("Class is full")
             
         data['amount'] = class_room.course.price
