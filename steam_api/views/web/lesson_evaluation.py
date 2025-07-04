@@ -108,7 +108,7 @@ class WebLessonEvaluationView(viewsets.ViewSet):
         responses={
             201: LessonEvaluationSerializer(),
             400: 'Bad Request - Invalid data or evaluation already exists',
-            403: 'Forbidden - Not teacher of this class',
+            403: 'Forbidden - Not teacher of this class or lesson has not completed',
             500: openapi.Response(
                 description='Internal Server Error',
                 schema=openapi.Schema(
@@ -144,6 +144,13 @@ class WebLessonEvaluationView(viewsets.ViewSet):
                     data={"error": "You are not the teacher of this class"},
                     status=status.HTTP_403_FORBIDDEN
                 ).response
+                
+            # Kiểm tra buổi học đã kết thúc chưa
+            if lesson.status != 'completed':
+                return RestResponse(
+                    data={"error": "Cannot evaluate lesson that has not completed"},
+                    status=status.HTTP_403_FORBIDDEN
+                ).response
 
             evaluation = serializer.save()
             response_serializer = LessonEvaluationSerializer(evaluation)
@@ -157,7 +164,7 @@ class WebLessonEvaluationView(viewsets.ViewSet):
         responses={
             200: LessonEvaluationSerializer(),
             400: 'Bad Request',
-            403: 'Forbidden - Not teacher of this class or class has ended',
+            403: 'Forbidden - Not teacher of this class, class has ended, or lesson has not completed',
             404: 'Not Found',
             500: openapi.Response(
                 description='Internal Server Error',
@@ -189,6 +196,13 @@ class WebLessonEvaluationView(viewsets.ViewSet):
             if evaluation.lesson.module.class_room.end_date < timezone.now().date():
                 return RestResponse(
                     data={"error": "Cannot update evaluation after class has ended"},
+                    status=status.HTTP_403_FORBIDDEN
+                ).response
+                
+            # Kiểm tra buổi học đã kết thúc chưa
+            if evaluation.lesson.status != 'completed':
+                return RestResponse(
+                    data={"error": "Cannot evaluate lesson that has not completed"},
                     status=status.HTTP_403_FORBIDDEN
                 ).response
 

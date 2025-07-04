@@ -2,11 +2,32 @@ from rest_framework import serializers
 from django.db import models, transaction
 from steam_api.models.lesson import Lesson
 from steam_api.models.course_module import CourseModule
+from steam_api.models.lesson_evaluation import LessonEvaluation
 
 class LessonSerializer(serializers.ModelSerializer):
+    is_evaluated = serializers.SerializerMethodField()
+    status = serializers.SerializerMethodField(
+        help_text="Status of the lesson: 'not_started', 'in_progress', or 'completed'"
+    )
+    
     class Meta:
         model = Lesson
         fields = "__all__"
+        
+    def get_is_evaluated(self, obj):
+        student_id = self.context.get('student_id')
+        
+        if not student_id:
+            return None
+            
+        return LessonEvaluation.objects.filter(
+            lesson=obj,
+            student_id=student_id,
+            deleted_at__isnull=True
+        ).exists()
+        
+    def get_status(self, obj):
+        return obj.status
 
 class UpdateLessonSerializer(serializers.ModelSerializer):
     class Meta:

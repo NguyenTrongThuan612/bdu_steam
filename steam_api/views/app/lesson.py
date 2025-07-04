@@ -97,7 +97,11 @@ class AppLessonView(viewsets.ViewSet):
                 'sequence_number'
             )
 
-            serializer = LessonSerializer(lessons, many=True)
+            serializer = LessonSerializer(
+                lessons, 
+                many=True,
+                context={'student_id': student_id} if student_id else {}
+            )
             return RestResponse(data=serializer.data, status=status.HTTP_200_OK).response
         except Exception as e:
             logging.getLogger().exception("AppLessonView.list exc=%s", e)
