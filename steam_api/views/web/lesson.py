@@ -27,6 +27,14 @@ class WebLessonView(viewsets.ViewSet):
                 description='Filter lessons by module ID',
                 type=openapi.TYPE_INTEGER,
                 required=False
+            ),
+            openapi.Parameter(
+                'status',
+                openapi.IN_QUERY,
+                description='Filter lessons by status (not_started, in_progress, completed)',
+                type=openapi.TYPE_STRING,
+                required=False,
+                enum=['not_started', 'in_progress', 'completed']
             )
         ],
         responses={
@@ -46,6 +54,7 @@ class WebLessonView(viewsets.ViewSet):
         try:
             logging.getLogger().info("WebLessonView.list params=%s", request.query_params)
             module_id = request.query_params.get('module')
+            status_filter = request.query_params.get('status')
             
             lessons = Lesson.objects.filter(deleted_at__isnull=True)
             
@@ -53,6 +62,13 @@ class WebLessonView(viewsets.ViewSet):
                 lessons = lessons.filter(module_id=module_id)
                 
             lessons = lessons.order_by('module__sequence_number', 'sequence_number')
+            
+            if status_filter:
+                filtered_lessons = []
+                for lesson in lessons:
+                    if lesson.status == status_filter:
+                        filtered_lessons.append(lesson)
+                lessons = filtered_lessons
                 
             serializer = LessonSerializer(lessons, many=True)
             return RestResponse(data=serializer.data, status=status.HTTP_200_OK).response
