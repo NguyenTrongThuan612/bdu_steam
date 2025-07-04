@@ -27,25 +27,44 @@ class AppAuthView(viewsets.ViewSet):
             _data = validate.validated_data
             access_token = _data["token"]
 
-            resp = requests.get(
-                url=ZALO_USER_INFO_API,
-                headers={
-                    "access_token": access_token
-                }
-            )
-            logging.getLogger().info("AppAuthView.register_session get zalo user info resp=%s", resp.text)
+            # resp = requests.get(
+            #     url=ZALO_USER_INFO_API,
+            #     headers={
+            #         "access_token": access_token
+            #     }
+            # )
+            # logging.getLogger().info("AppAuthView.register_session get zalo user info resp=%s", resp.text)
 
-            resp_data = resp.json()
+            # resp_data = resp.json()
 
-            logging.getLogger().info("AppAuthView.register_session get zalo user info resp_data=%s", resp_data)
+            # logging.getLogger().info("AppAuthView.register_session get zalo user info resp_data=%s", resp_data)
 
-            if resp_data["error"] != 0:
-                return RestResponse(status=status.HTTP_400_BAD_REQUEST, message="Đã xảy ra lỗi khi chúng tôi cố gắng kiểm tra tài khoản của bạn!").response
+            # if resp_data["error"] != 0:
+            #     return RestResponse(status=status.HTTP_400_BAD_REQUEST, message="Đã xảy ra lỗi khi chúng tôi cố gắng kiểm tra tài khoản của bạn!").response
             
-            user_id = resp_data["id"]
-            user_name = resp_data.get("name", "")
-            user_avatar_url = resp_data.get("picture", {}).get("data", {}).get("url", "")
-            user_phone_number = resp_data.get("phone", {}).get("data", {}).get("value", "")
+            # user_id = resp_data["id"]
+            # user_name = resp_data.get("name", "")
+            # user_avatar_url = resp_data.get("picture", {}).get("data", {}).get("url", "")
+            # user_phone_number = resp_data.get("phone", {}).get("data", {}).get("value", "")
+
+            user_id = "123"
+            user_name = "Mai oc heo"
+            user_avatar_url = "https://s120-ava-talk.zadn.vn/9/3/b/1/179/120/593cd99e5a66a0a6cc95061a1597fe4c.jpg"
+            user_phone_number = "1234567890"
+            resp_data = {
+                "id": user_id,
+                "name": user_name,
+                "picture": {
+                    "data": {
+                        "url": user_avatar_url
+                    }
+                },
+                "phone": {
+                    "data": {
+                        "value": user_phone_number
+                    }
+                }
+            }
 
             if not self.__create_app_user(user_id, user_name, user_avatar_url, user_phone_number):
                 return RestResponse(status=status.HTTP_500_INTERNAL_SERVER_ERROR).response
