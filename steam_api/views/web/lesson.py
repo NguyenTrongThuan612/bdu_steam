@@ -4,6 +4,7 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from django.utils import timezone
 from django.db import transaction
+from django.db.models import Q
 
 from steam_api.helpers.response import RestResponse
 from steam_api.models.lesson import Lesson
@@ -39,7 +40,7 @@ class WebLessonView(viewsets.ViewSet):
             openapi.Parameter(
                 'teacher',
                 openapi.IN_QUERY,
-                description='Filter lessons by teacher ID',
+                description='Filter lessons by teacher or teaching assistant ID',
                 type=openapi.TYPE_INTEGER,
                 required=False
             )
@@ -70,7 +71,10 @@ class WebLessonView(viewsets.ViewSet):
                 lessons = lessons.filter(module_id=module_id)
 
             if teacher_id:
-                lessons = lessons.filter(module__class_room__teacher_id=teacher_id)
+                lessons = lessons.filter(
+                    Q(module__class_room__teacher_id=teacher_id) |
+                    Q(module__class_room__teaching_assistant_id=teacher_id)
+                )
                 
             lessons = lessons.order_by('module__sequence_number', 'sequence_number')
             
