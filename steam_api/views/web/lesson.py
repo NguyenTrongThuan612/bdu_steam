@@ -8,6 +8,7 @@ from django.db.models import Q
 
 from steam_api.helpers.response import RestResponse
 from steam_api.models.lesson import Lesson
+from steam_api.models.web_user import WebUserRole
 from steam_api.serializers.lesson import LessonSerializer, UpdateLessonSerializer, CreateLessonSerializer
 from steam_api.middlewares.permissions import IsManager, IsNotRoot
 from steam_api.middlewares.web_authentication import WebUserAuthentication
@@ -66,6 +67,12 @@ class WebLessonView(viewsets.ViewSet):
             teacher_id = request.query_params.get('teacher')
             
             lessons = Lesson.objects.filter(deleted_at__isnull=True)
+
+            if request.user.role == WebUserRole.TEACHER:
+                lessons = lessons.filter(
+                    Q(module__class_room__teacher=request.user) |
+                    Q(module__class_room__teaching_assistant=request.user)
+                )
             
             if module_id:
                 lessons = lessons.filter(module_id=module_id)
@@ -205,11 +212,9 @@ class WebLessonView(viewsets.ViewSet):
             
             module = lesson.module
             
-            # Soft delete the lesson
             lesson.deleted_at = timezone.now()
             lesson.save()
             
-            # Update sequence numbers of remaining lessons
             lessons_to_update = Lesson.objects.filter(
                 module=module,
                 sequence_number__gt=lesson.sequence_number,
@@ -220,7 +225,6 @@ class WebLessonView(viewsets.ViewSet):
                 lesson_to_update.sequence_number -= 1
                 lesson_to_update.save()
             
-            # Update module's total_lessons
             module.total_lessons -= 1
             module.save(update_fields=['total_lessons'])
             

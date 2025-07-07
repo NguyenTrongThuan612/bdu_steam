@@ -18,6 +18,12 @@ class CreateAttendanceSerializer(serializers.ModelSerializer):
         fields = ['student', 'lesson', 'status', 'note']
 
     def validate(self, data):
+        if data['lesson'].module.class_room.teacher != self.context['request'].user and data['lesson'].module.class_room.teaching_assistant != self.context['request'].user:
+            raise serializers.ValidationError("You are not authorized to create attendance for this lesson")
+
+        if data['lesson'].status != 'completed':
+            raise serializers.ValidationError("Lesson is not completed")
+        
         if Attendance.objects.filter(
             student=data['student'],
             lesson=data['lesson'],
@@ -35,7 +41,7 @@ class CreateAttendanceSerializer(serializers.ModelSerializer):
 
         if not registration:
             raise serializers.ValidationError(
-                "Student is not registered for this class or registration is not approved/fully paid"
+                "Student is not registered for this class or registration is not approved"
             )
 
         return data 

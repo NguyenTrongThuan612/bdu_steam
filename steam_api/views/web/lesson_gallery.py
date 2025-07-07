@@ -3,10 +3,12 @@ from rest_framework import viewsets, status
 from rest_framework.parsers import MultiPartParser, FormParser
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from django.db.models import Q
 
 from steam_api.helpers.response import RestResponse
 from steam_api.middlewares.permissions import IsTeacher, IsNotRoot
 from steam_api.models.lesson_gallery import LessonGallery
+from steam_api.models.web_user import WebUserRole
 from steam_api.serializers.lesson_gallery import (
     LessonGallerySerializer,
     CreateLessonGallerySerializer
@@ -66,11 +68,13 @@ class WebLessonGalleryView(viewsets.ViewSet):
             module_id = request.query_params.get('module')
             class_room_id = request.query_params.get('class_room')
             
-            galleries = LessonGallery.objects.filter(
-                lesson__module__class_room__teacher=request.user
-            ) | LessonGallery.objects.filter(
-                lesson__module__class_room__teaching_assistant=request.user
-            )
+            galleries = LessonGallery.objects.filter(deleted_at__isnull=True)
+
+            if request.user.role == WebUserRole.TEACHER:
+                galleries = galleries.filter(
+                    Q(lesson__module__class_room__teacher=request.user) |
+                    Q(lesson__module__class_room__teaching_assistant=request.user)
+                )
             
             if lesson_id:
                 galleries = galleries.filter(lesson_id=lesson_id)
@@ -119,12 +123,13 @@ class WebLessonGalleryView(viewsets.ViewSet):
     def create(self, request):
         try:
             logging.getLogger().info("WebLessonGalleryView.create req=%s", request.data)
-            serializer = CreateLessonGallerySerializer(data=request.data)
+            serializer = CreateLessonGallerySerializer(data=request.data, context={'request': request})
             
             if not serializer.is_valid():
                 return RestResponse(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST).response
 
             lesson = serializer.validated_data['lesson']
+            
             if request.user not in [lesson.module.class_room.teacher, lesson.module.class_room.teaching_assistant]:
                 return RestResponse(
                     data={"error": "You are not the teacher of this class"},

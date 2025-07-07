@@ -19,9 +19,10 @@ class WebCourseRegistrationView(viewsets.ViewSet):
     authentication_classes = (WebUserAuthentication,)
     
     def get_permissions(self):
-        if self.action in ['update', 'destroy']:
-            return [IsManager()]
-        return [IsNotRoot()]
+        return [IsManager()]
+        # if self.action in ['update', 'destroy']:
+        #     return [IsManager()]
+        # return [IsNotRoot()]
 
     @swagger_auto_schema(
         manual_parameters=[

@@ -5,6 +5,7 @@ from rest_framework.decorators import action
 from rest_framework.parsers import MultiPartParser
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from django.db.models import Q
 
 from steam_api.helpers.response import RestResponse
 from steam_api.middlewares.permissions import IsManager, IsNotRoot
@@ -33,6 +34,13 @@ class WebClassRoomView(viewsets.ViewSet):
                 description='Filter classes by course ID',
                 type=openapi.TYPE_INTEGER,
                 required=False
+            ),
+            openapi.Parameter(
+                'teacher',
+                openapi.IN_QUERY,
+                description='Filter classes by teacher or teaching assistant ID',
+                type=openapi.TYPE_INTEGER,
+                required=False
             )
         ],
         responses={
@@ -52,14 +60,21 @@ class WebClassRoomView(viewsets.ViewSet):
         try:
             logging.getLogger().info("WebClassRoomView.list params=%s", request.query_params)
             course_id = request.query_params.get('course_id')
+            teacher_id = request.query_params.get('teacher')
             
             classes = ClassRoom.objects.filter(is_active=True, deleted_at__isnull=True)
             
             if course_id:
                 classes = classes.filter(course_id=course_id)
             
-            # if request.user.role == WebUserRole.TEACHER:
-            #     classes = classes.filter(teacher=request.user) | classes.filter(teaching_assistant=request.user)
+            if teacher_id:
+                classes = classes.filter(
+                    Q(teacher_id=teacher_id) |
+                    Q(teaching_assistant_id=teacher_id)
+                )
+            
+            if request.user.role == WebUserRole.TEACHER:
+                classes = classes.filter(teacher=request.user) | classes.filter(teaching_assistant=request.user)
                 
             serializer = ClassRoomSerializer(classes, many=True)
             return RestResponse(data=serializer.data, status=status.HTTP_200_OK).response
@@ -89,6 +104,10 @@ class WebClassRoomView(viewsets.ViewSet):
                 class_room = ClassRoom.objects.get(pk=pk, is_active=True, deleted_at__isnull=True)
             except ClassRoom.DoesNotExist:
                 return RestResponse(status=status.HTTP_404_NOT_FOUND).response
+
+            if request.user.role == WebUserRole.TEACHER:
+                if class_room.teacher != request.user and class_room.teaching_assistant != request.user:
+                    return RestResponse(status=status.HTTP_403_FORBIDDEN).response
 
             serializer = ClassRoomSerializer(class_room)
             return RestResponse(data=serializer.data, status=status.HTTP_200_OK).response

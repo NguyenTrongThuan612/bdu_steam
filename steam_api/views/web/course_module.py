@@ -3,6 +3,7 @@ from django.utils import timezone
 from rest_framework import viewsets, status
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from django.db.models import Q
 
 from steam_api.helpers.response import RestResponse
 from steam_api.middlewares.permissions import IsManager, IsNotRoot
@@ -31,6 +32,13 @@ class WebCourseModuleView(viewsets.ViewSet):
                 description='Filter modules by class room ID',
                 type=openapi.TYPE_INTEGER,
                 required=False
+            ),
+            openapi.Parameter(
+                'teacher',
+                openapi.IN_QUERY,
+                description='Filter modules by teacher or teaching assistant ID',
+                type=openapi.TYPE_INTEGER,
+                required=False
             )
         ],
         responses={
@@ -50,20 +58,24 @@ class WebCourseModuleView(viewsets.ViewSet):
         try:
             logging.getLogger().info("WebCourseModuleView.list params=%s", request.query_params)
             class_room_id = request.query_params.get('class_room')
+            teacher_id = request.query_params.get('teacher')
             
-            if request.user.role == WebUserRole.MANAGER:
-                modules = CourseModule.objects.filter(deleted_at__isnull=True)
-            else:
-                modules = CourseModule.objects.filter(
-                    class_room__teacher=request.user,
-                    deleted_at__isnull=True
-                ) | CourseModule.objects.filter(
-                    class_room__teaching_assistant=request.user,
-                    deleted_at__isnull=True
+            modules = CourseModule.objects.filter(deleted_at__isnull=True)
+
+            if request.user.role == WebUserRole.TEACHER:
+                modules = modules.filter(
+                    Q(class_room__teacher=request.user) |
+                    Q(class_room__teaching_assistant=request.user)
                 )
             
             if class_room_id:
                 modules = modules.filter(class_room_id=class_room_id)
+
+            if teacher_id:
+                modules = modules.filter(
+                    Q(class_room__teacher_id=teacher_id) |
+                    Q(class_room__teaching_assistant_id=teacher_id)
+                )
                 
             modules = modules.order_by('sequence_number')
                 

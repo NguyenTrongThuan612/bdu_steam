@@ -3,6 +3,7 @@ from django.utils import timezone
 from rest_framework import viewsets, status
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from django.db.models import Q
 
 from steam_api.helpers.response import RestResponse
 from steam_api.middlewares.permissions import IsTeacher, IsNotRoot
@@ -74,14 +75,14 @@ class WebLessonEvaluationView(viewsets.ViewSet):
             module_id = request.query_params.get('module')
             class_room_id = request.query_params.get('class_room')
             student_id = request.query_params.get('student')
-            
-            evaluations = LessonEvaluation.objects.filter(
-                lesson__module__class_room__teacher=request.user,
-                deleted_at__isnull=True
-            ) | LessonEvaluation.objects.filter(
-                lesson__module__class_room__teaching_assistant=request.user,
-                deleted_at__isnull=True
-            )
+
+            evaluations = LessonEvaluation.objects.filter(deleted_at__isnull=True)
+
+            if request.user.role == WebUserRole.TEACHER:
+                evaluations = evaluations.filter(
+                    Q(lesson__module__class_room__teacher=request.user) |
+                    Q(lesson__module__class_room__teaching_assistant=request.user)
+                )
             
             if lesson_id:
                 evaluations = evaluations.filter(lesson_id=lesson_id)
@@ -131,21 +132,18 @@ class WebLessonEvaluationView(viewsets.ViewSet):
             lesson = serializer.validated_data['lesson']
             student = serializer.validated_data['student']
             
-            # Kiểm tra xem học viên có thuộc lớp học không
             if student not in lesson.module.class_room.approved_students:
                 return RestResponse(
                     data={"error": "Student is not enrolled in this class"},
                     status=status.HTTP_400_BAD_REQUEST
                 ).response
 
-            # Kiểm tra người dùng có phải là giáo viên của lớp không
             if request.user not in [lesson.module.class_room.teacher, lesson.module.class_room.teaching_assistant]:
                 return RestResponse(
                     data={"error": "You are not the teacher of this class"},
                     status=status.HTTP_403_FORBIDDEN
                 ).response
                 
-            # Kiểm tra buổi học đã kết thúc chưa
             if lesson.status != 'completed':
                 return RestResponse(
                     data={"error": "Cannot evaluate lesson that has not completed"},
@@ -185,21 +183,18 @@ class WebLessonEvaluationView(viewsets.ViewSet):
             except LessonEvaluation.DoesNotExist:
                 return RestResponse(status=status.HTTP_404_NOT_FOUND).response
 
-            # Kiểm tra người dùng có phải là giáo viên của lớp không
             if request.user not in [evaluation.lesson.module.class_room.teacher, evaluation.lesson.module.class_room.teaching_assistant]:
                 return RestResponse(
                     data={"error": "You are not the teacher of this class"},
                     status=status.HTTP_403_FORBIDDEN
                 ).response
 
-            # Kiểm tra lớp học đã kết thúc chưa
             if evaluation.lesson.module.class_room.end_date < timezone.now().date():
                 return RestResponse(
                     data={"error": "Cannot update evaluation after class has ended"},
                     status=status.HTTP_403_FORBIDDEN
                 ).response
                 
-            # Kiểm tra buổi học đã kết thúc chưa
             if evaluation.lesson.status != 'completed':
                 return RestResponse(
                     data={"error": "Cannot evaluate lesson that has not completed"},
@@ -242,14 +237,12 @@ class WebLessonEvaluationView(viewsets.ViewSet):
             except LessonEvaluation.DoesNotExist:
                 return RestResponse(status=status.HTTP_404_NOT_FOUND).response
 
-            # Kiểm tra người dùng có phải là giáo viên của lớp không
             if request.user not in [evaluation.lesson.module.class_room.teacher, evaluation.lesson.module.class_room.teaching_assistant]:
                 return RestResponse(
                     data={"error": "You are not the teacher of this class"},
                     status=status.HTTP_403_FORBIDDEN
                 ).response
 
-            # Kiểm tra lớp học đã kết thúc chưa
             if evaluation.lesson.module.class_room.end_date < timezone.now().date():
                 return RestResponse(
                     data={"error": "Cannot delete evaluation after class has ended"},

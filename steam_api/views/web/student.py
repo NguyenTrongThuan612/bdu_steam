@@ -9,6 +9,7 @@ from drf_yasg import openapi
 from steam_api.helpers.response import RestResponse
 from steam_api.middlewares.permissions import IsManager, IsNotRoot
 from steam_api.models.student import Student
+from steam_api.models.web_user import WebUserRole
 from steam_api.serializers.student import (
     StudentSerializer,
     CreateStudentSerializer,
@@ -54,6 +55,12 @@ class WebStudentView(viewsets.ViewSet):
             search = request.query_params.get('search', '')
             
             students = Student.objects.filter(deleted_at__isnull=True)
+
+            if request.user.role == WebUserRole.TEACHER:
+                students = students.filter(
+                    Q(course_registrations__class_room__teacher=request.user) |
+                    Q(course_registrations__class_room__teaching_assistant=request.user)
+                )
             
             if search:
                 students = students.filter(
@@ -91,6 +98,9 @@ class WebStudentView(viewsets.ViewSet):
             logging.getLogger().info("WebStudentView.retrieve pk=%s", pk)
             try:
                 student = Student.objects.get(pk=pk, deleted_at__isnull=True)
+                if request.user.role == WebUserRole.TEACHER:
+                    if student not in request.user.teaching_classes.students.all() and student not in request.user.assisting_classes.students.all():
+                        return RestResponse(status=status.HTTP_403_FORBIDDEN).response
             except Student.DoesNotExist:
                 return RestResponse(status=status.HTTP_404_NOT_FOUND).response
 

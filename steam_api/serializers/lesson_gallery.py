@@ -19,8 +19,10 @@ class CreateLessonGallerySerializer(serializers.ModelSerializer):
         fields = ['lesson', 'image']
         
     def validate(self, data):
-        # Call parent's validate method first
         data = super().validate(data)
+        
+        if self.context['request'].user not in [data['lesson'].module.class_room.teacher, data['lesson'].module.class_room.teaching_assistant]:
+            raise serializers.ValidationError("You are not the teacher of this class")
         
         try:
             gallery = LessonGallery.objects.get(

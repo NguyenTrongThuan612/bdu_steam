@@ -4,10 +4,12 @@ from rest_framework import viewsets, status
 from rest_framework.parsers import MultiPartParser, FormParser
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from django.db.models import Q
 
 from steam_api.helpers.response import RestResponse
 from steam_api.middlewares.permissions import IsManager, IsNotRoot
 from steam_api.models.course import Course
+from steam_api.models.web_user import WebUserRole
 from steam_api.serializers.course import CourseSerializer, CreateCourseSerializer, UpdateCourseSerializer
 from steam_api.middlewares.web_authentication import WebUserAuthentication
 
@@ -38,6 +40,7 @@ class WebCourseView(viewsets.ViewSet):
         try:
             logging.getLogger().info("WebCourseView.list params=%s", request.query_params)
             courses = Course.objects.filter(is_active=True, deleted_at__isnull=True)
+
             serializer = CourseSerializer(courses, many=True)
             return RestResponse(data=serializer.data, status=status.HTTP_200_OK).response
         except Exception as e:

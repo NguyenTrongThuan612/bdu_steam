@@ -2,9 +2,11 @@ import logging
 from rest_framework import viewsets, status
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from django.db.models import Q
 
 from steam_api.helpers.response import RestResponse
 from steam_api.models.attendance import Attendance
+from steam_api.models.web_user import WebUserRole
 from steam_api.serializers.attendance import AttendanceSerializer, CreateAttendanceSerializer
 from steam_api.middlewares.permissions import IsNotRoot, IsTeacher
 from steam_api.middlewares.web_authentication import WebUserAuthentication
@@ -64,6 +66,12 @@ class WebAttendanceView(viewsets.ViewSet):
             
             attendances = Attendance.objects.filter(deleted_at__isnull=True)
             
+            if request.user.role == WebUserRole.TEACHER:
+                attendances = attendances.filter(
+                    Q(lesson__module__class_room__teacher=request.user) |
+                    Q(lesson__module__class_room__teaching_assistant=request.user)
+                )
+
             if student_id:
                 attendances = attendances.filter(student_id=student_id)
                 
@@ -109,7 +117,7 @@ class WebAttendanceView(viewsets.ViewSet):
         try:
             logging.getLogger().info("WebAttendanceView.create req=%s", request.data)
             
-            serializer = CreateAttendanceSerializer(data=request.data)
+            serializer = CreateAttendanceSerializer(data=request.data, context={'request': request})
             if not serializer.is_valid():
                 return RestResponse(data={"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST).response
                 
