@@ -18,41 +18,28 @@ class CreateLessonGallerySerializer(serializers.ModelSerializer):
         model = LessonGallery
         fields = ['lesson', 'image']
         
-    def validate(self, data):
-        data = super().validate(data)
-        
-        if self.context['request'].user not in [data['lesson'].module.class_room.teacher, data['lesson'].module.class_room.teaching_assistant]:
-            raise serializers.ValidationError("You are not the teacher of this class")
-        
-        try:
-            gallery = LessonGallery.objects.get(
-                lesson=data['lesson']
-            )
-            
-            if gallery and gallery.images_count >= 5:
-                raise serializers.ValidationError("This lesson already has maximum number of images (5)")
-            
-            data['gallery'] = gallery
-        except LessonGallery.DoesNotExist:
-            data['gallery'] = None
-            
-        return data
-        
     def create(self, validated_data):
         image = validated_data.pop('image')
-        gallery = validated_data.pop('gallery')
+        lesson = validated_data.pop('lesson')
         
         try:
             image_url = upload_image_to_firebase(image)
             
-            if gallery:
+            if LessonGallery.objects.filter(
+                lesson=lesson,
+                deleted_at__isnull=True
+            ).exists():
+                gallery = LessonGallery.objects.get(
+                    lesson=lesson,
+                    deleted_at__isnull=True
+                )
                 gallery.image_urls.append(image_url)
                 gallery.save()
                 return gallery
-            else:
-                return LessonGallery.objects.create(
-                    lesson=validated_data['lesson'],
-                    image_urls=[image_url]
-                )
+            
+            return LessonGallery.objects.create(
+                lesson=lesson,
+                image_urls=[image_url]
+            )
         except Exception as e:
             raise serializers.ValidationError({'image': str(e)}) 

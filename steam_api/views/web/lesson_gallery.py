@@ -123,23 +123,37 @@ class WebLessonGalleryView(viewsets.ViewSet):
     def create(self, request):
         try:
             logging.getLogger().info("WebLessonGalleryView.create req=%s", request.data)
-            serializer = CreateLessonGallerySerializer(data=request.data, context={'request': request})
+            serializer = CreateLessonGallerySerializer(data=request.data)
             
             if not serializer.is_valid():
                 return RestResponse(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST).response
 
-            lesson = serializer.validated_data['lesson']
+            data = serializer.validated_data
+            logging.getLogger().info("WebLessonGalleryView.create data=%s", data)
+
+            lesson = data['lesson']
             
             if request.user not in [lesson.module.class_room.teacher, lesson.module.class_room.teaching_assistant]:
                 return RestResponse(
-                    data={"error": "You are not the teacher of this class"},
-                    status=status.HTTP_403_FORBIDDEN
+                    status=status.HTTP_403_FORBIDDEN,
+                    message="You are not the teacher of this class"
                 ).response
+            
+            gallery = LessonGallery.objects.filter(
+                lesson=data['lesson'],
+                deleted_at__isnull=True
+            ).first()
+            
+            if gallery and gallery.images_count >= 5:
+                return RestResponse(
+                    status=status.HTTP_400_BAD_REQUEST,
+                    message="This lesson already has maximum number of images (5)"
+                ).response 
 
             if 'image' not in request.FILES:
                 return RestResponse(
-                    data={"error": "Image is required"},
-                    status=status.HTTP_400_BAD_REQUEST
+                    status=status.HTTP_400_BAD_REQUEST,
+                    message="Image is required"
                 ).response
 
             serializer.validated_data['image'] = request.FILES['image']

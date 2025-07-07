@@ -46,27 +46,11 @@ class CreateLessonSerializer(serializers.ModelSerializer):
     def validate(self, data):
         data = super().validate(data)
         
-        module = data['module']
         sequence_number = data['sequence_number']
 
         if sequence_number <= 0:
             raise serializers.ValidationError({
                 'sequence_number': 'Sequence number must be greater than 0'
-            })
-
-        max_allowed = module.total_lessons + 1
-        if sequence_number > max_allowed:
-            raise serializers.ValidationError({
-                'sequence_number': f'Sequence number cannot be greater than {max_allowed}'
-            })
-
-        if Lesson.objects.filter(
-            module=module,
-            sequence_number=sequence_number,
-            deleted_at__isnull=True
-        ).exists():
-            raise serializers.ValidationError({
-                'sequence_number': f'Lesson with sequence number {sequence_number} already exists in this module'
             })
 
         return data

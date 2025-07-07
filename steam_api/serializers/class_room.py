@@ -34,21 +34,6 @@ class CreateClassRoomSerializer(serializers.ModelSerializer):
         fields = ['name', 'description', 'course', 'teacher', 'teaching_assistant', 'max_students',
                  'start_date', 'end_date', 'schedule', 'total_sessions']
 
-    def validate(self, data):
-        data = super().validate(data)
-        
-        if data['start_date'] > data['end_date']:
-            raise serializers.ValidationError({'end_date': 'End date must be after start date'})
-        
-        if 'teaching_assistant' in data and 'teacher' in data:
-            if data['teaching_assistant'] and data['teacher'] and data['teaching_assistant'] == data['teacher']:
-                raise serializers.ValidationError({'teaching_assistant': 'Teacher and teaching assistant cannot be the same person'})
-
-        if 'total_sessions' in data and data['total_sessions'] < 0:
-            raise serializers.ValidationError({'total_sessions': 'Total sessions cannot be negative'})
-            
-        return data
-
 class UpdateClassRoomSerializer(serializers.ModelSerializer):
     teacher = serializers.PrimaryKeyRelatedField(
         queryset=WebUser.objects.filter(role=WebUserRole.TEACHER, status=WebUserStatus.ACTIVATED),
@@ -75,27 +60,3 @@ class UpdateClassRoomSerializer(serializers.ModelSerializer):
             'total_sessions': {'required': False},
             'is_active': {'required': False}
         }
-
-    def validate(self, data):
-        data = super().validate(data)
-        
-        if 'start_date' in data and 'end_date' in data:
-            if data['start_date'] > data['end_date']:
-                raise serializers.ValidationError({'end_date': 'End date must be after start date'})
-        elif 'start_date' in data and self.instance:
-            if data['start_date'] > self.instance.end_date:
-                raise serializers.ValidationError({'start_date': 'Start date cannot be after current end date'})
-        elif 'end_date' in data and self.instance:
-            if self.instance.start_date > data['end_date']:
-                raise serializers.ValidationError({'end_date': 'End date cannot be before current start date'})
-                
-        # Check if teacher and teaching assistant are the same person
-        teacher = data.get('teacher', self.instance.teacher if self.instance else None)
-        assistant = data.get('teaching_assistant', self.instance.teaching_assistant if self.instance else None)
-        if teacher and assistant and teacher == assistant:
-            raise serializers.ValidationError({'teaching_assistant': 'Teacher and teaching assistant cannot be the same person'})
-
-        if 'total_sessions' in data and data['total_sessions'] < 0:
-            raise serializers.ValidationError({'total_sessions': 'Total sessions cannot be negative'})
-            
-        return data

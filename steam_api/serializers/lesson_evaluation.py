@@ -32,22 +32,6 @@ class CreateLessonEvaluationSerializer(serializers.ModelSerializer):
             'creativity_score', 'communication_score', 'homework_score',
             'old_knowledge_score', 'new_knowledge_score', 'comment'
         ]
-        
-    def validate(self, data):
-        # Call parent's validate method first
-        data = super().validate(data)
-        
-        try:
-            LessonEvaluation.objects.get(
-                lesson=data['lesson'],
-                student=data['student'],
-                deleted_at__isnull=True
-            )
-            raise serializers.ValidationError("Evaluation for this student in this lesson already exists")
-        except LessonEvaluation.DoesNotExist:
-            pass
-            
-        return data
 
 class UpdateLessonEvaluationSerializer(serializers.ModelSerializer):
     class Meta:

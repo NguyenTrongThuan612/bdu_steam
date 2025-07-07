@@ -128,26 +128,39 @@ class WebLessonEvaluationView(viewsets.ViewSet):
             
             if not serializer.is_valid():
                 return RestResponse(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST).response
+            
+            data = serializer.validated_data
+            logging.getLogger().info("WebLessonEvaluationView.create data=%s", data)
 
-            lesson = serializer.validated_data['lesson']
-            student = serializer.validated_data['student']
+            lesson = data['lesson']
+            student = data['student']
             
             if student not in lesson.module.class_room.approved_students:
                 return RestResponse(
-                    data={"error": "Student is not enrolled in this class"},
-                    status=status.HTTP_400_BAD_REQUEST
+                    status=status.HTTP_400_BAD_REQUEST,
+                    message="Student is not enrolled in this class"
                 ).response
 
             if request.user not in [lesson.module.class_room.teacher, lesson.module.class_room.teaching_assistant]:
                 return RestResponse(
-                    data={"error": "You are not the teacher of this class"},
-                    status=status.HTTP_403_FORBIDDEN
+                    status=status.HTTP_403_FORBIDDEN,
+                    message="You are not the teacher of this class"
                 ).response
                 
             if lesson.status != 'completed':
                 return RestResponse(
-                    data={"error": "Cannot evaluate lesson that has not completed"},
-                    status=status.HTTP_403_FORBIDDEN
+                    status=status.HTTP_403_FORBIDDEN,
+                    message="Cannot evaluate lesson that has not completed"
+                ).response
+            
+            if LessonEvaluation.objects.filter(
+                lesson=lesson,
+                student=student,
+                deleted_at__isnull=True
+            ).exists():
+                return RestResponse(
+                    status=status.HTTP_400_BAD_REQUEST,
+                    message="Evaluation for this student in this lesson already exists"
                 ).response
 
             evaluation = serializer.save()
@@ -205,6 +218,9 @@ class WebLessonEvaluationView(viewsets.ViewSet):
             
             if not serializer.is_valid():
                 return RestResponse(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST).response
+            
+            data = serializer.validated_data
+            logging.getLogger().info("WebLessonEvaluationView.update data=%s", data)
 
             updated_evaluation = serializer.save()
             response_serializer = LessonEvaluationSerializer(updated_evaluation)

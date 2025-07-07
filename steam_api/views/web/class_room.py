@@ -138,6 +138,27 @@ class WebClassRoomView(viewsets.ViewSet):
             
             if not serializer.is_valid():
                 return RestResponse(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST).response
+            
+            data = serializer.validated_data
+            logging.getLogger().info("WebClassRoomView.create data=%s", data)
+            
+            if data['teaching_assistant'] and data['teacher'] and data['teaching_assistant'] == data['teacher']:
+                return RestResponse(
+                    status=status.HTTP_400_BAD_REQUEST,
+                    message="Teacher and teaching assistant cannot be the same person"
+                ).response
+            
+            if data['start_date'] > data['end_date']:
+                return RestResponse(
+                    status=status.HTTP_400_BAD_REQUEST,
+                    message="Start date must be before end date"
+                ).response
+            
+            if data['total_sessions'] < 0:
+                return RestResponse(
+                    status=status.HTTP_400_BAD_REQUEST,
+                    message="Total sessions cannot be negative"
+                ).response
 
             class_room = serializer.save()
             response_serializer = ClassRoomSerializer(class_room)
@@ -176,6 +197,43 @@ class WebClassRoomView(viewsets.ViewSet):
             
             if not serializer.is_valid():
                 return RestResponse(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST).response
+            
+            data = serializer.validated_data
+            logging.getLogger().info("WebClassRoomView.update data=%s", data)
+            
+            teacher = data.get('teacher', class_room.teacher if class_room else None)
+            assistant = data.get('teaching_assistant', class_room.teaching_assistant if class_room else None)
+
+            if teacher and assistant and teacher == assistant:
+                return RestResponse(
+                    status=status.HTTP_400_BAD_REQUEST,
+                    message="Teacher and teaching assistant cannot be the same person"
+                ).response 
+            
+            if 'start_date' in data and 'end_date' in data:
+                if data['start_date'] > data['end_date']:
+                    return RestResponse(
+                        status=status.HTTP_400_BAD_REQUEST,
+                        message="Start date must be before end date"
+                    ).response
+            elif 'start_date' in data and class_room:
+                if data['start_date'] > class_room.end_date:
+                    return RestResponse(
+                        status=status.HTTP_400_BAD_REQUEST,
+                        message="Start date cannot be after current end date"
+                    ).response
+            elif 'end_date' in data and class_room:
+                if class_room.start_date > data['end_date']:
+                    return RestResponse(
+                        status=status.HTTP_400_BAD_REQUEST,
+                        message="End date cannot be before current start date"
+                    ).response
+                
+            if 'total_sessions' in data and data['total_sessions'] < 0:
+                return RestResponse(
+                    status=status.HTTP_400_BAD_REQUEST,
+                    message="Total sessions cannot be negative"
+                ).response
 
             updated_class = serializer.save()
             response_serializer = ClassRoomSerializer(updated_class)

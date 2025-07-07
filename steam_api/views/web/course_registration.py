@@ -112,6 +112,21 @@ class WebCourseRegistrationView(viewsets.ViewSet):
             if not serializer.is_valid():
                 return RestResponse(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST).response
 
+            data = serializer.validated_data
+            logging.getLogger().info("WebCourseRegistrationView.create data=%s", data)
+            
+            if data['student'].registrations.filter(class_room=data['class_room'], deleted_at__isnull=True).exists():
+                return RestResponse(
+                    status=status.HTTP_400_BAD_REQUEST,
+                    message="Student has already registered for this class"
+                ).response
+            
+            if data['class_room'].current_students_count >= data['class_room'].max_students:
+                return RestResponse(
+                    status=status.HTTP_400_BAD_REQUEST,
+                    message="Class is full"
+                ).response
+            
             registration = serializer.save()
             response_serializer = CourseRegistrationSerializer(registration)
             
@@ -149,6 +164,27 @@ class WebCourseRegistrationView(viewsets.ViewSet):
             
             if not serializer.is_valid():
                 return RestResponse(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST).response
+            
+            data = serializer.validated_data
+            logging.getLogger().info("WebCourseRegistrationView.update data=%s", data)
+            
+            if registration.status == 'approved' and data['status'] != 'cancelled':
+                return RestResponse(
+                    status=status.HTTP_400_BAD_REQUEST,
+                    message="Cannot change status of approved registration except to cancelled"
+                ).response
+            
+            if registration.status in ['rejected', 'cancelled'] and data['status'] != registration.status:
+                return RestResponse(
+                    status=status.HTTP_400_BAD_REQUEST,
+                    message="Cannot change status of rejected or cancelled registration"
+                ).response
+            
+            if data['paid_amount'] > registration.amount:
+                return RestResponse(
+                    status=status.HTTP_400_BAD_REQUEST,
+                    message="Paid amount cannot exceed total amount"
+                ).response
 
             updated_registration = serializer.save()
             response_serializer = CourseRegistrationSerializer(updated_registration)
@@ -181,7 +217,6 @@ class WebCourseRegistrationView(viewsets.ViewSet):
             except CourseRegistration.DoesNotExist:
                 return RestResponse(status=status.HTTP_404_NOT_FOUND).response
 
-            # Soft delete
             registration.deleted_at = timezone.now()
             registration.save(update_fields=['deleted_at'])
             

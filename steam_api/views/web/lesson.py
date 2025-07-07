@@ -129,7 +129,26 @@ class WebLessonView(viewsets.ViewSet):
             serializer = CreateLessonSerializer(data=request.data)
             if not serializer.is_valid():
                 return RestResponse(data={"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST).response
-                
+            
+            data = serializer.validated_data
+            logging.getLogger().info("WebLessonView.create data=%s", data)
+
+            if Lesson.objects.filter(
+                module=data['module'],
+                sequence_number=data['sequence_number'],
+                deleted_at__isnull=True
+            ).exists():
+                return RestResponse(
+                    status=status.HTTP_400_BAD_REQUEST,
+                    message="Lesson with this sequence number already exists"
+                ).response
+            
+            if data['sequence_number'] > data['module'].total_lessons:
+                return RestResponse(
+                    status=status.HTTP_400_BAD_REQUEST,
+                    message="Sequence number cannot be greater than total lessons"
+                ).response
+            
             lesson = serializer.save()
             return RestResponse(data=LessonSerializer(lesson).data, status=status.HTTP_201_CREATED).response
         except Exception as e:

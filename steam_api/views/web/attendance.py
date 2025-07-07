@@ -6,6 +6,7 @@ from django.db.models import Q
 
 from steam_api.helpers.response import RestResponse
 from steam_api.models.attendance import Attendance
+from steam_api.models.course_registration import CourseRegistration
 from steam_api.models.web_user import WebUserRole
 from steam_api.serializers.attendance import AttendanceSerializer, CreateAttendanceSerializer
 from steam_api.middlewares.permissions import IsNotRoot, IsTeacher
@@ -120,7 +121,43 @@ class WebAttendanceView(viewsets.ViewSet):
             serializer = CreateAttendanceSerializer(data=request.data, context={'request': request})
             if not serializer.is_valid():
                 return RestResponse(data={"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST).response
-                
+            
+            data = serializer.validated_data
+            logging.getLogger().info("WebAttendanceView.create data=%s", data)
+            
+            if data['lesson'].module.class_room.teacher != request.user and data['lesson'].module.class_room.teaching_assistant != request.user:
+                return RestResponse(
+                    status=status.HTTP_403_FORBIDDEN,
+                    message="You are not authorized to create attendance for this lesson"
+                ).response
+            
+            if data['lesson'].status != 'completed':
+                return RestResponse(
+                    status=status.HTTP_403_FORBIDDEN,
+                    message="Lesson is not completed"
+                ).response
+            
+            if Attendance.objects.filter(
+                student=data['student'],
+                lesson=data['lesson'],
+                deleted_at__isnull=True
+            ).exists():
+                return RestResponse(
+                    status=status.HTTP_400_BAD_REQUEST,
+                    message="Attendance record already exists for this student and lesson"
+                ).response
+            
+            if not CourseRegistration.objects.filter(
+                student=data['student'],
+                class_room=data['lesson'].module.class_room,
+                status='approved',
+                deleted_at__isnull=True
+            ).exists():
+                return RestResponse(
+                    status=status.HTTP_400_BAD_REQUEST,
+                    message="Student is not registered for this class or registration is not approved"
+                ).response
+            
             attendance = serializer.save()
             return RestResponse(data=AttendanceSerializer(attendance).data, status=status.HTTP_201_CREATED).response
         except Exception as e:

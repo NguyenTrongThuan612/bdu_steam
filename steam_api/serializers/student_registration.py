@@ -37,8 +37,3 @@ class UpdateStudentRegistrationStatusSerializer(serializers.ModelSerializer):
             'status': {'required': True},
             'note': {'required': False}
         }
-
-    def validate_status(self, value):
-        if value not in [StudentRegistrationStatus.APPROVED, StudentRegistrationStatus.REJECTED]:
-            raise serializers.ValidationError("Status must be either approved or rejected")
-        return value 
