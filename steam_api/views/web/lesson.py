@@ -35,6 +35,13 @@ class WebLessonView(viewsets.ViewSet):
                 type=openapi.TYPE_STRING,
                 required=False,
                 enum=['not_started', 'in_progress', 'completed']
+            ),
+            openapi.Parameter(
+                'teacher',
+                openapi.IN_QUERY,
+                description='Filter lessons by teacher ID',
+                type=openapi.TYPE_INTEGER,
+                required=False
             )
         ],
         responses={
@@ -55,11 +62,15 @@ class WebLessonView(viewsets.ViewSet):
             logging.getLogger().info("WebLessonView.list params=%s", request.query_params)
             module_id = request.query_params.get('module')
             status_filter = request.query_params.get('status')
+            teacher_id = request.query_params.get('teacher')
             
             lessons = Lesson.objects.filter(deleted_at__isnull=True)
             
             if module_id:
                 lessons = lessons.filter(module_id=module_id)
+
+            if teacher_id:
+                lessons = lessons.filter(module__class_room__teacher_id=teacher_id)
                 
             lessons = lessons.order_by('module__sequence_number', 'sequence_number')
             
