@@ -1,10 +1,12 @@
 from rest_framework import serializers
 from steam_api.models.student import Student
-from steam_api.models.student_registration import StudentRegistration, StudentRegistrationStatus
+from steam_api.models.student_registration import StudentRegistration
 from steam_api.serializers.app_user import AppUserSerializer
+from steam_api.serializers.student import StudentSerializer
 
 class StudentRegistrationSerializer(serializers.ModelSerializer):
     app_user = AppUserSerializer(read_only=True)
+    student = StudentSerializer(read_only=True)
     
     class Meta:
         model = StudentRegistration
