@@ -9,6 +9,7 @@ from steam_api.views.app.lesson import AppLessonView
 from steam_api.views.app.attendance import AppAttendanceView
 from steam_api.views.app.lesson_gallery import AppLessonGalleryView
 from steam_api.views.app.lesson_evaluation import AppLessonEvaluationView
+from steam_api.views.app.course import AppCourseView
 from steam_api.views.web.auth import WebAuthView
 from steam_api.views.web.root import RootView
 from steam_api.views.web.course import WebCourseView
@@ -34,6 +35,7 @@ app_router.register('lessons', AppLessonView, "app_lessons")
 app_router.register('attendances', AppAttendanceView, "app_attendances")
 app_router.register('lesson-galleries', AppLessonGalleryView, "app_lesson_galleries")
 app_router.register('lesson-evaluations', AppLessonEvaluationView, "app_lesson_evaluations")
+app_router.register('courses', AppCourseView, "app_courses")
 
 web_router = SimpleRouter(trailing_slash=False)
 web_router.register('root/users', RootView, "web_root_users")
