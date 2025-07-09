@@ -51,6 +51,9 @@ class AppClassRoomView(viewsets.ViewSet):
             
             if student_id:
                 student_ids = student_ids.filter(student_id=student_id)
+
+            if student_ids.count() == 0:
+                return RestResponse(status=status.HTTP_400_BAD_REQUEST, message="Bạn không có quyền xem lớp học của học viên này!").response
                 
             student_ids = student_ids.values_list('student_id', flat=True)
 
