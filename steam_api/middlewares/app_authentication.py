@@ -19,7 +19,7 @@ class AppAuthentication(BaseAuthentication):
             if session_data is None:
                 raise AuthenticationFailed("Verify token failed!")
             
-            user = AppUser.objects.get(mini_app_user_id=session_data["user_id"])
+            user = AppUser.objects.get(app_user_id=session_data["user_id"])
             
             return (user, token)
         except Exception as e:

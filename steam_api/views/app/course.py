@@ -12,9 +12,6 @@ from steam_api.middlewares.app_authentication import AppAuthentication
 class AppCourseView(viewsets.ViewSet):
     authentication_classes = (AppAuthentication,)
     
-    def get_permissions(self):
-        return [IsNotRoot()]
-
     @swagger_auto_schema(
         responses={
             200: CourseSerializer(many=True),
