@@ -6,6 +6,7 @@ from django.db.models import Q
 
 from steam_api.helpers.response import RestResponse
 from steam_api.middlewares.app_authentication import AppAuthentication
+from steam_api.models.class_room import ClassRoom
 from steam_api.models.student_registration import StudentRegistration, StudentRegistrationStatus
 from steam_api.models.course_registration import CourseRegistration
 from steam_api.serializers.class_room import ClassRoomSerializer
@@ -61,7 +62,9 @@ class AppClassRoomView(viewsets.ViewSet):
                 'class_room',
                 'class_room__course'
             ).values_list('class_room', flat=True).distinct()
-
+            
+            class_rooms = ClassRoom.objects.filter(id__in=class_rooms)
+            
             serializer = ClassRoomSerializer(class_rooms, many=True)
             return RestResponse(data=serializer.data, status=status.HTTP_200_OK).response
         except Exception as e:
