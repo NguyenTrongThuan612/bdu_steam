@@ -11,6 +11,7 @@ class LessonGallery(models.Model):
     image_urls = models.JSONField(default=list, help_text="List of image URLs for this lesson")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    deleted_at = models.DateTimeField(null=True)
 
     def __str__(self):
         return f"{self.lesson.module.class_room.name} - {self.lesson.module.name} - Lesson {self.lesson.sequence_number}"
