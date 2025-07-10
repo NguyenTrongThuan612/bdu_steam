@@ -104,9 +104,6 @@ class AppLessonEvaluationView(viewsets.ViewSet):
                 'lesson__module',
                 'lesson__module__class_room',
                 'lesson__module__class_room__course'
-            ).prefetch_related(
-                'criteria_evaluations',
-                'criteria_evaluations__criteria'
             ).order_by(
                 '-created_at',
                 'lesson__module__class_room__name',
