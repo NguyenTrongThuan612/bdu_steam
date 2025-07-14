@@ -9,6 +9,9 @@ class LessonSerializer(serializers.ModelSerializer):
     status = serializers.SerializerMethodField(
         help_text="Status of the lesson: 'not_started', 'in_progress', or 'completed'"
     )
+    start_datetime = serializers.SerializerMethodField()
+    end_datetime = serializers.SerializerMethodField()
+    schedule = serializers.SerializerMethodField()
     
     class Meta:
         model = Lesson
@@ -29,6 +32,23 @@ class LessonSerializer(serializers.ModelSerializer):
     def get_status(self, obj):
         return obj.status
 
+    def get_start_datetime(self, obj: Lesson):
+        return obj.start_datetime
+    
+    def get_end_datetime(self, obj: Lesson):
+        return obj.end_datetime
+    
+    def get_schedule(self, obj: Lesson):
+        return {
+            "start_date": obj.start_datetime.strftime("%d/%m/%Y"),
+            "start_time": obj.start_datetime.strftime("%H:%M"),
+            "end_date": obj.end_datetime.strftime("%d/%m/%Y"),
+            "end_time": obj.end_datetime.strftime("%H:%M"),
+            "duration": (obj.end_datetime - obj.start_datetime).total_seconds() / 60,
+            "status": obj.status,
+            "name": obj.name,
+        }
+    
 class UpdateLessonSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lesson
