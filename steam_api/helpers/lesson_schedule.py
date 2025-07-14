@@ -98,4 +98,30 @@ def calculate_lesson_status(
             else:
                 return 'in_progress'
     
-    return 'completed' 
+    return 'completed'
+
+def get_lesson_start_datetime(start_date: datetime.date, schedule: Dict[str, str], lesson_sequence: int) -> datetime:
+    lesson_date = get_lesson_date(start_date, schedule, lesson_sequence)
+
+    if not lesson_date:
+        return None
+    
+    start_time = schedule.get(lesson_date.strftime('%A').lower())   
+    
+    if not start_time:
+        return None
+    
+    return datetime.combine(lesson_date, datetime.strptime(start_time.split('-')[0], '%H:%M').time())
+
+def get_lesson_end_datetime(start_date: datetime.date, schedule: Dict[str, str], lesson_sequence: int) -> datetime:
+    lesson_date = get_lesson_date(start_date, schedule, lesson_sequence)
+
+    if not lesson_date:
+        return None
+    
+    end_time = schedule.get(lesson_date.strftime('%A').lower())
+    
+    if not end_time:
+        return None
+    
+    return datetime.combine(lesson_date, datetime.strptime(end_time.split('-')[1], '%H:%M').time())

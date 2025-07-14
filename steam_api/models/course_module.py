@@ -18,9 +18,6 @@ class CourseModule(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     deleted_at = models.DateTimeField(null=True)
-
-    def __str__(self):
-        return f"{self.class_room.name} - {self.name} (Module {self.sequence_number})"
         
     def save(self, *args, **kwargs):
         is_new = self._state.adding

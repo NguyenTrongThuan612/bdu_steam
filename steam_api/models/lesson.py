@@ -1,7 +1,8 @@
+from datetime import datetime
 from django.db import models
 from django.core.validators import MinValueValidator
 from steam_api.models.course_module import CourseModule
-from steam_api.helpers.lesson_status import calculate_lesson_status
+from steam_api.helpers.lesson_schedule import calculate_lesson_status, get_lesson_start_datetime, get_lesson_end_datetime
 
 class Lesson(models.Model):
     class Meta:
@@ -43,4 +44,20 @@ class Lesson(models.Model):
             end_date=class_room.end_date,
             schedule=class_room.schedule,
             lesson_sequence=absolute_sequence
-        ) 
+        )
+    
+    @property
+    def start_datetime(self) -> datetime:
+        return get_lesson_start_datetime(
+            start_date=self.module.class_room.start_date,
+            schedule=self.module.class_room.schedule,
+            lesson_sequence=self.sequence_number
+        )
+    
+    @property
+    def end_datetime(self) -> datetime:
+        return get_lesson_end_datetime(
+            start_date=self.module.class_room.start_date,
+            schedule=self.module.class_room.schedule,
+            lesson_sequence=self.sequence_number
+        )

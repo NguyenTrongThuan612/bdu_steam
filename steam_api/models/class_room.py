@@ -24,9 +24,6 @@ class ClassRoom(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     deleted_at = models.DateTimeField(null=True)
 
-    def __str__(self):
-        return self.name
-
     @property
     def total_sessions(self):
         return sum(module.total_lessons for module in self.modules.filter(deleted_at__isnull=True))
