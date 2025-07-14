@@ -11,7 +11,7 @@ from steam_api.serializers.course import CourseSerializer
 from steam_api.middlewares.app_authentication import AppAuthentication  
 
 class AppCourseView(viewsets.ViewSet):
-    # authentication_classes = (AppAuthentication,)
+    authentication_classes = (AppAuthentication,)
     
     @swagger_auto_schema(
         manual_parameters=[
