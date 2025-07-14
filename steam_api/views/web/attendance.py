@@ -4,9 +4,11 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from django.db.models import Q
 
+from steam_api import models
 from steam_api.helpers.response import RestResponse
 from steam_api.models.attendance import Attendance
 from steam_api.models.course_registration import CourseRegistration
+from steam_api.models.lesson_checkin import LessonCheckin
 from steam_api.models.web_user import WebUserRole
 from steam_api.serializers.attendance import AttendanceSerializer, CreateAttendanceSerializer
 from steam_api.middlewares.permissions import IsNotRoot, IsTeacher
@@ -156,6 +158,17 @@ class WebAttendanceView(viewsets.ViewSet):
                 return RestResponse(
                     status=status.HTTP_400_BAD_REQUEST,
                     message="Student is not registered for this class or registration is not approved"
+                ).response
+            
+            checkin = LessonCheckin.objects.filter(
+                lesson=data['lesson'],
+                deleted_at__isnull=True
+            ).exists()
+            
+            if not checkin:
+                return RestResponse(
+                    status=status.HTTP_400_BAD_REQUEST,
+                    message="Teacher or teaching assistant has not checked in"
                 ).response
             
             attendance = serializer.save()
