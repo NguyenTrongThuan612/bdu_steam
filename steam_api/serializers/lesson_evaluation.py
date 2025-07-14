@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from steam_api.const.score_criteria import SCORE_CRITERIA
 from steam_api.models.lesson_evaluation import LessonEvaluation
 from steam_api.serializers.student import StudentSerializer
 from steam_api.models.student import Student
@@ -10,10 +11,21 @@ class LessonEvaluationSerializer(serializers.ModelSerializer):
     lesson = LessonSerializer(read_only=True)
     class_room_name = serializers.CharField(source='lesson.module.class_room.name', read_only=True)
     module_name = serializers.CharField(source='lesson.module.name', read_only=True)
+    semantic_scores = serializers.SerializerMethodField(read_only=True)
     
     class Meta:
         model = LessonEvaluation
         fields = "__all__"
+
+    def get_semantic_scores(self, obj : LessonEvaluation):
+        result = {}
+        for criteria in SCORE_CRITERIA:
+            result[criteria['code']] = {
+                "name": criteria['name'],
+                "score_label": criteria['options'][getattr(obj, criteria['code']) - 1]['label'],
+                "score_value": getattr(obj, criteria['code'])
+            }
+        return result
 
 class CreateLessonEvaluationSerializer(serializers.ModelSerializer):
     student = serializers.PrimaryKeyRelatedField(
