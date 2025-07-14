@@ -22,8 +22,8 @@ class LessonEvaluationSerializer(serializers.ModelSerializer):
         for criteria in SCORE_CRITERIA:
             result[criteria['code']] = {
                 "name": criteria['name'],
-                "score_label": criteria['options'][getattr(obj, criteria['code']) - 1]['label'],
-                "score_value": getattr(obj, criteria['code'])
+                "label": criteria['options'][getattr(obj, criteria['code']) - 1]['label'],
+                "value": getattr(obj, criteria['code'])
             }
         return result
 
