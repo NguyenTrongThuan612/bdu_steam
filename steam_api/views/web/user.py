@@ -8,7 +8,11 @@ from rest_framework.decorators import action
 from steam_api.helpers.response import RestResponse
 from steam_api.middlewares.web_authentication import WebUserAuthentication
 from steam_api.models.web_user import WebUser, WebUserRole, WebUserStatus
-from steam_api.serializers.web_user import WebUserSerializer, UpdateWebUserSerializer
+from steam_api.serializers.web_user import (
+    WebUserSerializer, 
+    UpdateWebUserSerializer,
+    ChangePasswordSerializer
+)
 
 class WebUserView(viewsets.ViewSet):
     authentication_classes = (WebUserAuthentication,)
@@ -121,4 +125,44 @@ class WebUserView(viewsets.ViewSet):
             return RestResponse(
                 data={"error": str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            ).response
+
+    @swagger_auto_schema(
+        request_body=ChangePasswordSerializer,
+        responses={
+            200: 'Success',
+            400: 'Bad Request',
+            500: 'Internal Server Error'
+        }
+    )
+    @action(methods=['POST'], detail=False, url_path='change-password')
+    def change_password(self, request):
+        try:
+            logging.getLogger().info("WebUserView.change_password user=%s", request.user.id)
+            
+            serializer = ChangePasswordSerializer(
+                data=request.data,
+                context={'user': request.user}
+            )
+            
+            if not serializer.is_valid():
+                return RestResponse(
+                    data=serializer.errors,
+                    status=status.HTTP_400_BAD_REQUEST,
+                    message="Vui lòng kiểm tra lại dữ liệu!"
+                ).response
+            
+            request.user.set_password(serializer.validated_data['new_password'])
+            request.user.save(update_fields=['password'])
+            
+            return RestResponse(
+                status=status.HTTP_200_OK,
+                message="Đổi mật khẩu thành công!"
+            ).response
+            
+        except Exception as e:
+            logging.getLogger().exception("WebUserView.change_password exc=%s, user=%s", e, request.user.id)
+            return RestResponse(
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                message="Lỗi khi đổi mật khẩu!"
             ).response 

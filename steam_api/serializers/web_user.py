@@ -95,3 +95,19 @@ class UpdateWebUserSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Không thể thay đổi trạng thái của chính mình")
 
         return data
+
+class ChangePasswordSerializer(serializers.Serializer):
+    current_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True, min_length=8)
+
+    def validate_current_password(self, value):
+        user = self.context.get('user')
+        if not user.check_password(value):
+            raise serializers.ValidationError("Mật khẩu hiện tại không chính xác!")
+        return value
+
+    def validate_new_password(self, value):
+        if not re.match(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&_-])[A-Za-z\d@$!%_#*?&-]{8,30}$', value):
+            raise serializers.ValidationError("Mật khẩu không hợp lệ. Yêu cầu ít nhất 8 ký tự, bao gồm chữ cái viết thường, viết hoa, số và ký tự đặc biệt.")
+        
+        return value 
