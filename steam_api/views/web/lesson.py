@@ -47,7 +47,7 @@ class WebLessonView(viewsets.ViewSet):
                 required=False
             ),
             openapi.Parameter(
-                'date',
+                'lesson_date',
                 openapi.IN_QUERY,
                 description='Filter lessons by date (format: YYYY-MM-DD)',
                 type=openapi.TYPE_STRING,
@@ -73,7 +73,7 @@ class WebLessonView(viewsets.ViewSet):
             module_id = request.query_params.get('module')
             status_filter = request.query_params.get('status')
             teacher_id = request.query_params.get('teacher')
-            date_str = request.query_params.get('date')
+            date_str = request.query_params.get('lesson_date')
             lessons = Lesson.objects.filter(deleted_at__isnull=True)
 
             if request.user.role == WebUserRole.TEACHER:
