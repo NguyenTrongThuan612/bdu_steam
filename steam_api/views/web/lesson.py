@@ -5,6 +5,7 @@ from drf_yasg import openapi
 from django.utils import timezone
 from django.db import transaction
 from django.db.models import Q
+from datetime import datetime
 
 from steam_api.helpers.response import RestResponse
 from steam_api.models.lesson import Lesson
@@ -44,6 +45,13 @@ class WebLessonView(viewsets.ViewSet):
                 description='Filter lessons by teacher or teaching assistant ID',
                 type=openapi.TYPE_INTEGER,
                 required=False
+            ),
+            openapi.Parameter(
+                'date',
+                openapi.IN_QUERY,
+                description='Filter lessons by date (format: YYYY-MM-DD)',
+                type=openapi.TYPE_STRING,
+                required=False
             )
         ],
         responses={
@@ -65,7 +73,7 @@ class WebLessonView(viewsets.ViewSet):
             module_id = request.query_params.get('module')
             status_filter = request.query_params.get('status')
             teacher_id = request.query_params.get('teacher')
-            
+            date_str = request.query_params.get('date')
             lessons = Lesson.objects.filter(deleted_at__isnull=True)
 
             if request.user.role == WebUserRole.TEACHER:
@@ -84,6 +92,20 @@ class WebLessonView(viewsets.ViewSet):
                 )
                 
             lessons = lessons.order_by('module__sequence_number', 'sequence_number')
+            
+            if date_str:
+                try:
+                    target_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+                    filtered_lessons = []
+                    for lesson in lessons:
+                        if lesson.start_datetime and lesson.start_datetime.date() == target_date:
+                            filtered_lessons.append(lesson)
+                    lessons = filtered_lessons
+                except ValueError:
+                    return RestResponse(
+                        data={"error": "Invalid date format. Use YYYY-MM-DD"},
+                        status=status.HTTP_400_BAD_REQUEST
+                    ).response
             
             if status_filter:
                 filtered_lessons = []

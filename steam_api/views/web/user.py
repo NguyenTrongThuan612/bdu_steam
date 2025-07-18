@@ -135,7 +135,7 @@ class WebUserView(viewsets.ViewSet):
             500: 'Internal Server Error'
         }
     )
-    @action(methods=['POST'], detail=False, url_path='change-password')
+    @action(methods=['POST'], detail=False, url_path='me/change-password')
     def change_password(self, request):
         try:
             logging.getLogger().info("WebUserView.change_password user=%s", request.user.id)
