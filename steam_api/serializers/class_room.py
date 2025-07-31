@@ -18,12 +18,14 @@ class CreateClassRoomSerializer(serializers.ModelSerializer):
     teacher = serializers.PrimaryKeyRelatedField(
         queryset=WebUser.objects.filter(role=WebUserRole.TEACHER, status=WebUserStatus.ACTIVATED),
         required=False,
-        allow_null=True
+        allow_null=True,
+        default=None
     )
     teaching_assistant = serializers.PrimaryKeyRelatedField(
         queryset=WebUser.objects.filter(role=WebUserRole.TEACHER, status=WebUserStatus.ACTIVATED),
         required=False,
-        allow_null=True
+        allow_null=True,
+        default=None
     )
     course = serializers.PrimaryKeyRelatedField(
         queryset=Course.objects.filter(is_active=True, deleted_at__isnull=True)
