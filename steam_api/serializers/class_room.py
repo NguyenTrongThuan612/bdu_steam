@@ -30,6 +30,7 @@ class CreateClassRoomSerializer(serializers.ModelSerializer):
     course = serializers.PrimaryKeyRelatedField(
         queryset=Course.objects.filter(is_active=True, deleted_at__isnull=True)
     )
+    total_sessions = serializers.IntegerField(required=True)
     
     class Meta:
         model = ClassRoom
