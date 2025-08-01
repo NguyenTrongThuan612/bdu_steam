@@ -153,12 +153,6 @@ class WebClassRoomView(viewsets.ViewSet):
                     status=status.HTTP_400_BAD_REQUEST,
                     message="Start date must be before end date"
                 ).response
-            
-            if data['total_sessions'] < 0:
-                return RestResponse(
-                    status=status.HTTP_400_BAD_REQUEST,
-                    message="Total sessions cannot be negative"
-                ).response
 
             class_room = serializer.save()
             response_serializer = ClassRoomSerializer(class_room)
@@ -229,12 +223,6 @@ class WebClassRoomView(viewsets.ViewSet):
                         message="End date cannot be before current start date"
                     ).response
                 
-            if 'total_sessions' in data and data['total_sessions'] < 0:
-                return RestResponse(
-                    status=status.HTTP_400_BAD_REQUEST,
-                    message="Total sessions cannot be negative"
-                ).response
-
             updated_class = serializer.save()
             response_serializer = ClassRoomSerializer(updated_class)
             

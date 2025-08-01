@@ -30,12 +30,11 @@ class CreateClassRoomSerializer(serializers.ModelSerializer):
     course = serializers.PrimaryKeyRelatedField(
         queryset=Course.objects.filter(is_active=True, deleted_at__isnull=True)
     )
-    total_sessions = serializers.IntegerField(required=True)
     
     class Meta:
         model = ClassRoom
         fields = ['name', 'description', 'course', 'teacher', 'teaching_assistant', 'max_students',
-                 'start_date', 'end_date', 'schedule', 'total_sessions']
+                 'start_date', 'end_date', 'schedule']
 
 class UpdateClassRoomSerializer(serializers.ModelSerializer):
     teacher = serializers.PrimaryKeyRelatedField(
@@ -52,7 +51,7 @@ class UpdateClassRoomSerializer(serializers.ModelSerializer):
     class Meta:
         model = ClassRoom
         fields = ['name', 'description', 'teacher', 'teaching_assistant',
-                 'max_students', 'start_date', 'end_date', 'schedule', 'total_sessions', 'is_active']
+                 'max_students', 'start_date', 'end_date', 'schedule', 'is_active']
         extra_kwargs = {
             'name': {'required': False},
             'description': {'required': False},
@@ -60,6 +59,5 @@ class UpdateClassRoomSerializer(serializers.ModelSerializer):
             'start_date': {'required': False},
             'end_date': {'required': False},
             'schedule': {'required': False},
-            'total_sessions': {'required': False},
             'is_active': {'required': False}
         }
