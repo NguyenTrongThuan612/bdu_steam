@@ -6,7 +6,7 @@ class Student(models.Model):
         db_table = "students"
         
     id = models.AutoField(primary_key=True)
-    identification_number = models.CharField(max_length=20, unique=True, help_text="Birth certificate number or identification number")
+    identification_number = models.CharField(max_length=50, unique=True, help_text="Birth certificate number or identification number")
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     date_of_birth = models.DateField()
