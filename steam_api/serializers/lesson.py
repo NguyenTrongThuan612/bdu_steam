@@ -46,7 +46,6 @@ class LessonSerializer(serializers.ModelSerializer):
             "end_time": obj.end_datetime.strftime("%H:%M"),
             "duration": (obj.end_datetime - obj.start_datetime).total_seconds() / 60,
             "status": obj.status,
-            "name": obj.name,
         }
     
 class UpdateLessonSerializer(serializers.ModelSerializer):
