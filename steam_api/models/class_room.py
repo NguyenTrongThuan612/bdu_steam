@@ -31,9 +31,9 @@ class ClassRoom(models.Model):
     @property
     def approved_students(self):
         return Student.objects.filter(
-            registrations__class_room=self,
-            registrations__status='approved',
-            registrations__deleted_at__isnull=True,
+            course_registrations__class_room=self,
+            course_registrations__status='approved',
+            course_registrations__deleted_at__isnull=True,
             is_active=True,
             deleted_at__isnull=True
         )
