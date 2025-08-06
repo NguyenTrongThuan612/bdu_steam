@@ -9,8 +9,8 @@ class CourseRegistration(models.Model):
         unique_together = ('student', 'class_room')
         
     id = models.BigAutoField(primary_key=True)
-    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='registrations')
-    class_room = models.ForeignKey(ClassRoom, on_delete=models.CASCADE, related_name='registrations')
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='course_registrations')
+    class_room = models.ForeignKey(ClassRoom, on_delete=models.CASCADE, related_name='course_registrations')
     
     STATUS_CHOICES = [
         ('pending', 'Pending'),
