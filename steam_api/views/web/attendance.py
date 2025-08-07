@@ -44,6 +44,13 @@ class WebAttendanceView(viewsets.ViewSet):
                 description='Filter by module ID',
                 type=openapi.TYPE_INTEGER,
                 required=False
+            ),
+            openapi.Parameter(
+                'lesson',
+                openapi.IN_QUERY,
+                description='Filter by lesson ID',
+                type=openapi.TYPE_INTEGER,
+                required=False
             )
         ],
         responses={
@@ -66,7 +73,7 @@ class WebAttendanceView(viewsets.ViewSet):
             student_id = request.query_params.get('student')
             classroom_id = request.query_params.get('classroom')
             module_id = request.query_params.get('module')
-            
+            lesson_id = request.query_params.get('lesson')
             attendances = Attendance.objects.filter(deleted_at__isnull=True)
             
             if request.user.role == WebUserRole.TEACHER:
@@ -83,6 +90,9 @@ class WebAttendanceView(viewsets.ViewSet):
                 
             if module_id:
                 attendances = attendances.filter(lesson__module_id=module_id)
+                
+            if lesson_id:
+                attendances = attendances.filter(lesson_id=lesson_id)
                 
             attendances = attendances.select_related('student', 'lesson').order_by('-check_in_time')
                 
