@@ -1,3 +1,4 @@
+from datetime import timezone
 import logging
 from rest_framework import viewsets, status
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -164,3 +165,29 @@ class WebLessonGalleryView(viewsets.ViewSet):
         except Exception as e:
             logging.getLogger().exception("WebLessonGalleryView.create exc=%s, req=%s", e, request.data)
             return RestResponse(data={"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR).response 
+        
+    @swagger_auto_schema(
+        operation_description="Delete a lesson gallery image",
+        responses={
+            204: 'No Content',
+            500: openapi.Response(
+                description='Internal Server Error',
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'error': openapi.Schema(type=openapi.TYPE_STRING)
+                    }
+                )
+            )
+        }
+    )
+    def destroy(self, request, pk=None):
+        try:
+            logging.getLogger().info("WebLessonGalleryView.destroy pk=%s", pk)
+            lesson_gallery = LessonGallery.objects.get(id=pk)
+            lesson_gallery.deleted_at = timezone.now()
+            lesson_gallery.save()
+            return RestResponse(status=status.HTTP_204_NO_CONTENT).response
+        except Exception as e:
+            logging.getLogger().exception("WebLessonGalleryView.destroy exc=%s, pk=%s", e, pk)
+            return RestResponse(data={"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR).response
