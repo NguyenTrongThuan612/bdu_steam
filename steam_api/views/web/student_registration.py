@@ -103,7 +103,7 @@ class WebStudentRegistrationView(viewsets.ViewSet):
             data = serializer.validated_data
             logging.getLogger().info("WebStudentRegistrationView.update data=%s", data)
 
-            if registration_request.status not in [StudentRegistrationStatus.APPROVED.value, StudentRegistrationStatus.REJECTED.value]:
+            if data.get('status', None) not in [StudentRegistrationStatus.APPROVED.value, StudentRegistrationStatus.REJECTED.value]:
                 return RestResponse(
                     status=status.HTTP_400_BAD_REQUEST,
                     message="Status must be either approved or rejected" 
