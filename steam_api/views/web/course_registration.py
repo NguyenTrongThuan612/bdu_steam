@@ -115,7 +115,7 @@ class WebCourseRegistrationView(viewsets.ViewSet):
             data = serializer.validated_data
             logging.getLogger().info("WebCourseRegistrationView.create data=%s", data)
             
-            if data['student'].registrations.filter(class_room=data['class_room'], deleted_at__isnull=True).exists():
+            if data['student'].course_registrations.filter(class_room=data['class_room'], deleted_at__isnull=True).exists():
                 return RestResponse(
                     status=status.HTTP_400_BAD_REQUEST,
                     message="Student has already registered for this class"
