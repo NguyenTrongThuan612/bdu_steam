@@ -18,7 +18,7 @@ class CourseRegistration(models.Model):
         ('rejected', 'Rejected'),
         ('cancelled', 'Cancelled'),
     ]
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='approved')
     
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     paid_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
