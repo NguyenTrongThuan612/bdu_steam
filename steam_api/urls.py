@@ -2,6 +2,7 @@ from django.urls import path, include
 from rest_framework.routers import SimpleRouter, DefaultRouter
 
 from steam_api.views.app.auth import AppAuthView
+from steam_api.views.app.facility import AppFacilityView
 from steam_api.views.app.student_registration import AppStudentRegistrationView
 from steam_api.views.app.class_room import AppClassRoomView
 from steam_api.views.app.course_module import AppCourseModuleView
@@ -26,6 +27,8 @@ from steam_api.views.web.course_registration import WebCourseRegistrationView
 from steam_api.views.web.student_registration import WebStudentRegistrationView
 from steam_api.views.web.attendance import WebAttendanceView
 from steam_api.views.web.lesson_checkin import WebLessonCheckinView
+from steam_api.views.web.facility import WebFacilityView
+from steam_api.views.web.facility_image import WebFacilityImageView
 from steam_api.views.health import HealthCheckView
 
 app_router = SimpleRouter(trailing_slash=False)
@@ -39,10 +42,13 @@ app_router.register('lesson-galleries', AppLessonGalleryView, "app_lesson_galler
 app_router.register('lesson-evaluations', AppLessonEvaluationView, "app_lesson_evaluations")
 app_router.register('courses', AppCourseView, "app_courses")
 app_router.register('time-tables', AppTimeTableView, "app_time_tables")
+app_router.register('facilities', AppFacilityView, "app_facilities")
 
 web_router = SimpleRouter(trailing_slash=False)
 web_router.register('root/users', RootView, "web_root_users")
 web_router.register('auth', WebAuthView, "web_auth")
+web_router.register('facilities', WebFacilityView, "web_facilities")
+web_router.register('facility-images', WebFacilityImageView, "web_facility_images")
 web_router.register('users', WebUserView, "web_users")
 web_router.register('courses', WebCourseView, "courses")
 web_router.register('lessons', WebLessonView, "lessons")
