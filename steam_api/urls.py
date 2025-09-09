@@ -30,6 +30,8 @@ from steam_api.views.web.lesson_checkin import WebLessonCheckinView
 from steam_api.views.web.facility import WebFacilityView
 from steam_api.views.web.facility_image import WebFacilityImageView
 from steam_api.views.health import HealthCheckView
+from steam_api.views.web.lesson_documentation import WebLessonDocumentationView
+from steam_api.views.app.lesson_documentation import AppLessonDocumentationView
 
 app_router = SimpleRouter(trailing_slash=False)
 app_router.register('auth', AppAuthView, "app_auth")
@@ -43,6 +45,7 @@ app_router.register('lesson-evaluations', AppLessonEvaluationView, "app_lesson_e
 app_router.register('courses', AppCourseView, "app_courses")
 app_router.register('time-tables', AppTimeTableView, "app_time_tables")
 app_router.register('facilities', AppFacilityView, "app_facilities")
+app_router.register('lesson-documentations', AppLessonDocumentationView, "app_lesson_documentations")
 
 web_router = SimpleRouter(trailing_slash=False)
 web_router.register('root/users', RootView, "web_root_users")
@@ -61,6 +64,7 @@ web_router.register('course-registrations', WebCourseRegistrationView, "course_r
 web_router.register('student-registrations', WebStudentRegistrationView, "web_student_registrations")
 web_router.register('attendances', WebAttendanceView, "web_attendances")
 web_router.register('lesson-checkins', WebLessonCheckinView, "lesson_checkins")
+web_router.register('lesson-documentations', WebLessonDocumentationView, "lesson_documentations")
 
 urlpatterns = [
    path('app/', include(app_router.urls)),
