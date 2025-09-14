@@ -5,22 +5,17 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
 from steam_api.helpers.response import RestResponse
-from steam_api.middlewares.permissions import IsManager, IsNotRoot
 from steam_api.models.course_registration import CourseRegistration
-from steam_api.models.web_user import WebUserRole
+from steam_api.models.student_registration import StudentRegistration, StudentRegistrationStatus
 from steam_api.serializers.course_registration import (
     CourseRegistrationSerializer,
     CreateCourseRegistrationSerializer,
-    UpdateCourseRegistrationSerializer
 )
-from steam_api.middlewares.web_authentication import WebUserAuthentication
+from steam_api.middlewares.app_authentication import AppAuthentication
 
-class WebCourseRegistrationView(viewsets.ViewSet):
-    authentication_classes = (WebUserAuthentication,)
+class AppCourseRegistrationView(viewsets.ViewSet):
+    authentication_classes = (AppAuthentication,)
     
-    def get_permissions(self):
-        return [IsManager()]
-
     @swagger_auto_schema(
         manual_parameters=[
             openapi.Parameter(
@@ -61,12 +56,18 @@ class WebCourseRegistrationView(viewsets.ViewSet):
     )
     def list(self, request):
         try:
-            logging.getLogger().info("WebCourseRegistrationView.list params=%s", request.query_params)
+            logging.getLogger().info("AppCourseRegistrationView.list params=%s", request.query_params)
             student_id = request.query_params.get('student')
             class_room_id = request.query_params.get('class_room')
             status_param = request.query_params.get('status')
+
+            valid_students = StudentRegistration.objects.filter(
+                app_user=request.user,
+                status=StudentRegistrationStatus.APPROVED,
+                deleted_at__isnull=True
+            )
             
-            registrations = CourseRegistration.objects.filter(deleted_at__isnull=True)
+            registrations = CourseRegistration.objects.filter(deleted_at__isnull=True, student__in=valid_students)
             
             if student_id:
                 registrations = registrations.filter(student_id=student_id)
@@ -82,7 +83,7 @@ class WebCourseRegistrationView(viewsets.ViewSet):
             serializer = CourseRegistrationSerializer(registrations, many=True)
             return RestResponse(data=serializer.data, status=status.HTTP_200_OK).response
         except Exception as e:
-            logging.getLogger().exception("WebCourseRegistrationView.list exc=%s, params=%s", e, request.query_params)
+            logging.getLogger().exception("AppCourseRegistrationView.list exc=%s, params=%s", e, request.query_params)
             return RestResponse(data={"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR).response
 
     @swagger_auto_schema(
@@ -103,14 +104,14 @@ class WebCourseRegistrationView(viewsets.ViewSet):
     )
     def create(self, request):
         try:
-            logging.getLogger().info("WebCourseRegistrationView.create req=%s", request.data)
+            logging.getLogger().info("AppCourseRegistrationView.create req=%s", request.data)
             serializer = CreateCourseRegistrationSerializer(data=request.data)
             
             if not serializer.is_valid():
                 return RestResponse(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST).response
 
             data = serializer.validated_data
-            logging.getLogger().info("WebCourseRegistrationView.create data=%s", data)
+            logging.getLogger().info("AppCourseRegistrationView.create data=%s", data)
             
             if data['student'].course_registrations.filter(class_room=data['class_room'], deleted_at__isnull=True).exists():
                 return RestResponse(
@@ -124,73 +125,27 @@ class WebCourseRegistrationView(viewsets.ViewSet):
                     message="Class is full"
                 ).response
 
-            data["status"] = "approved"
+            valid_students = StudentRegistration.objects.filter(
+                app_user=request.user,
+                status=StudentRegistrationStatus.APPROVED,
+                deleted_at__isnull=True
+            )
+
+            if not valid_students.filter(student=data['student']).exists():
+                return RestResponse(
+                    status=status.HTTP_400_BAD_REQUEST,
+                    message="You are not allowed to register for this student"
+                ).response
+
+            data["status"] = "pending"
             registration = serializer.save()
             response_serializer = CourseRegistrationSerializer(registration)
             
             return RestResponse(data=response_serializer.data, status=status.HTTP_201_CREATED).response
         except Exception as e:
-            logging.getLogger().exception("WebCourseRegistrationView.create exc=%s, req=%s", e, request.data)
+            logging.getLogger().exception("AppCourseRegistrationView.create exc=%s, req=%s", e, request.data)
             return RestResponse(data={"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR).response
 
-    @swagger_auto_schema(
-        request_body=UpdateCourseRegistrationSerializer,
-        responses={
-            200: CourseRegistrationSerializer(),
-            400: 'Bad Request',
-            404: 'Not Found',
-            500: openapi.Response(
-                description='Internal Server Error',
-                schema=openapi.Schema(
-                    type=openapi.TYPE_OBJECT,
-                    properties={
-                        'error': openapi.Schema(type=openapi.TYPE_STRING)
-                    }
-                )
-            )
-        }
-    )
-    def update(self, request, pk=None):
-        try:
-            logging.getLogger().info("WebCourseRegistrationView.update pk=%s, req=%s", pk, request.data)
-            try:
-                registration = CourseRegistration.objects.get(pk=pk, deleted_at__isnull=True)
-            except CourseRegistration.DoesNotExist:
-                return RestResponse(status=status.HTTP_404_NOT_FOUND).response
-
-            serializer = UpdateCourseRegistrationSerializer(registration, data=request.data, partial=True)
-            
-            if not serializer.is_valid():
-                return RestResponse(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST).response
-            
-            data = serializer.validated_data
-            logging.getLogger().info("WebCourseRegistrationView.update data=%s", data)
-            
-            if registration.status == 'approved' and data['status'] != 'cancelled':
-                return RestResponse(
-                    status=status.HTTP_400_BAD_REQUEST,
-                    message="Cannot change status of approved registration except to cancelled"
-                ).response
-            
-            if registration.status in ['rejected', 'cancelled'] and data['status'] != registration.status:
-                return RestResponse(
-                    status=status.HTTP_400_BAD_REQUEST,
-                    message="Cannot change status of rejected or cancelled registration"
-                ).response
-            
-            if data['paid_amount'] > registration.amount:
-                return RestResponse(
-                    status=status.HTTP_400_BAD_REQUEST,
-                    message="Paid amount cannot exceed total amount"
-                ).response
-
-            updated_registration = serializer.save()
-            response_serializer = CourseRegistrationSerializer(updated_registration)
-            
-            return RestResponse(data=response_serializer.data, status=status.HTTP_200_OK).response
-        except Exception as e:
-            logging.getLogger().exception("WebCourseRegistrationView.update exc=%s, pk=%s, req=%s", e, pk, request.data)
-            return RestResponse(data={"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR).response
 
     @swagger_auto_schema(
         responses={
@@ -209,7 +164,7 @@ class WebCourseRegistrationView(viewsets.ViewSet):
     )
     def destroy(self, request, pk=None):
         try:
-            logging.getLogger().info("WebCourseRegistrationView.destroy pk=%s", pk)
+            logging.getLogger().info("AppCourseRegistrationView.destroy pk=%s", pk)
             try:
                 registration = CourseRegistration.objects.get(pk=pk, deleted_at__isnull=True)
             except CourseRegistration.DoesNotExist:
@@ -220,5 +175,5 @@ class WebCourseRegistrationView(viewsets.ViewSet):
             
             return RestResponse(status=status.HTTP_204_NO_CONTENT).response
         except Exception as e:
-            logging.getLogger().exception("WebCourseRegistrationView.destroy exc=%s, pk=%s", e, pk)
+            logging.getLogger().exception("AppCourseRegistrationView.destroy exc=%s, pk=%s", e, pk)
             return RestResponse(data={"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR).response 

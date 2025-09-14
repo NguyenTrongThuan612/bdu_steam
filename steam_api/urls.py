@@ -32,6 +32,7 @@ from steam_api.views.web.facility_image import WebFacilityImageView
 from steam_api.views.health import HealthCheckView
 from steam_api.views.web.lesson_documentation import WebLessonDocumentationView
 from steam_api.views.app.lesson_documentation import AppLessonDocumentationView
+from steam_api.views.app.course_registration import AppCourseRegistrationView
 
 app_router = SimpleRouter(trailing_slash=False)
 app_router.register('auth', AppAuthView, "app_auth")
@@ -46,6 +47,7 @@ app_router.register('courses', AppCourseView, "app_courses")
 app_router.register('time-tables', AppTimeTableView, "app_time_tables")
 app_router.register('facilities', AppFacilityView, "app_facilities")
 app_router.register('lesson-documentations', AppLessonDocumentationView, "app_lesson_documentations")
+app_router.register('course-registrations', AppCourseRegistrationView, "app_course_registrations")
 
 web_router = SimpleRouter(trailing_slash=False)
 web_router.register('root/users', RootView, "web_root_users")
