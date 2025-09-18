@@ -105,7 +105,7 @@ class AppCourseRegistrationView(viewsets.ViewSet):
     def create(self, request):
         try:
             logging.getLogger().info("AppCourseRegistrationView.create req=%s", request.data)
-            serializer = CreateCourseRegistrationSerializer(data=request.data)
+            serializer = CreateCourseRegistrationSerializer(data=request.data, context={'allow_anonymous': True})
             
             if not serializer.is_valid():
                 return RestResponse(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST).response

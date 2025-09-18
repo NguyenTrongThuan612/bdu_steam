@@ -13,20 +13,36 @@ class CourseRegistrationSerializer(serializers.ModelSerializer):
         model = CourseRegistration
         fields = "__all__"
 
+class AnonymousContact(serializers.Serializer):
+    student_name = serializers.CharField(required=True)
+    parent_name = serializers.CharField(required=True)
+    parent_phone = serializers.CharField(required=True)
+    parent_email = serializers.EmailField(required=True)
+
 class CreateCourseRegistrationSerializer(serializers.ModelSerializer):
     student = serializers.PrimaryKeyRelatedField(
-        queryset=Student.objects.filter(deleted_at__isnull=True)
+        required=False,
+        queryset=Student.objects.filter(deleted_at__isnull=True),
+        allow_null=True
     )
     class_room = serializers.PrimaryKeyRelatedField(
         queryset=ClassRoom.objects.filter(is_active=True, deleted_at__isnull=True)
     )
+    contact_for_anonymous = AnonymousContact(required=False, allow_null=True)
     
     class Meta:
         model = CourseRegistration
-        fields = ['student', 'class_room', 'note', 'amount']
+        fields = ['student', 'class_room', 'note', 'amount', 'contact_for_anonymous']
         
     def validate(self, data):
         data = super().validate(data)
+
+        if not self.context.get("allow_anonymous", False) and data['student'] is None:
+            raise serializers.ValidationError("Student is required")
+        
+        elif self.context.get("allow_anonymous", False) and data['contact_for_anonymous'] is None:
+            raise serializers.ValidationError("Student or contact_for_anonymous is required")
+        
         data['amount'] = data['class_room'].course.price
         return data
 

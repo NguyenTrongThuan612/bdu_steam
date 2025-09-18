@@ -9,7 +9,7 @@ class CourseRegistration(models.Model):
         unique_together = ('student', 'class_room')
         
     id = models.BigAutoField(primary_key=True)
-    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='course_registrations')
+    student = models.ForeignKey(Student,null=True, on_delete=models.CASCADE, related_name='course_registrations')
     class_room = models.ForeignKey(ClassRoom, on_delete=models.CASCADE, related_name='course_registrations')
     
     STATUS_CHOICES = [
@@ -32,7 +32,7 @@ class CourseRegistration(models.Model):
         ],
         default='unpaid'
     )
-    
+    contact_for_anonymous = models.JSONField(default=dict)
     note = models.TextField(null=True, blank=True)
     
     created_at = models.DateTimeField(auto_now_add=True)
