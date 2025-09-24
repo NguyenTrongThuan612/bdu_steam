@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from steam_api.models.facility_image import FacilityImage
 from steam_api.models.facility import Facility
-from steam_api.helpers.firebase_storage import upload_image_to_firebase
+from steam_api.helpers.local_storage import upload_file_to_local
 
 class FacilityImageSerializer(serializers.ModelSerializer):
     
@@ -17,7 +17,7 @@ class FacilityImageCreateSerializer(serializers.Serializer):
     
     def create(self, validated_data):
         image_file = validated_data.pop('image')
-        image_url = upload_image_to_firebase(image_file)
+        image_url = upload_file_to_local(image_file)
         
         facility_image = FacilityImage.objects.create(
             facility=validated_data['facility'],

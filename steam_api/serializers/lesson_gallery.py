@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from steam_api.models.lesson_gallery import LessonGallery
-from steam_api.helpers.firebase_storage import upload_image_to_firebase
+from steam_api.helpers.local_storage import upload_file_to_local
 from steam_api.models.lesson import Lesson
 
 class LessonGallerySerializer(serializers.ModelSerializer):
@@ -23,7 +23,7 @@ class CreateLessonGallerySerializer(serializers.ModelSerializer):
         lesson = validated_data.pop('lesson')
         
         try:
-            image_url = upload_image_to_firebase(image)
+            image_url = upload_file_to_local(image)
             
             if LessonGallery.objects.filter(
                 lesson=lesson,

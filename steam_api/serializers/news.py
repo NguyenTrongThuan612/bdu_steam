@@ -6,6 +6,7 @@ class NewsSerializer(serializers.ModelSerializer):
         model = News
         fields = "__all__"
 
+
 class CreateNewsSerializer(serializers.Serializer):
     title = serializers.CharField(required=True)
     link = serializers.URLField(required=True)

@@ -1,30 +1,24 @@
-FROM ubuntu:20.04
+FROM python:3.11-slim
 
-ENV DEBIAN_FRONTEND=noninteractive
-ENV TZ=Etc/UTC
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    DEBIAN_FRONTEND=noninteractive \
+    TZ=Etc/UTC
 
-RUN apt-get update && apt-get install -y \
-    python3-pip \
-    python3-dev \
-    build-essential \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     default-libmysqlclient-dev \
     libpq-dev \
+    build-essential \
     pkg-config \
-    tzdata
+    tzdata \
+ && rm -rf /var/lib/apt/lists/*
 
-RUN ln -s /usr/bin/python3 /usr/local/bin/python
-
-RUN pip3 install --upgrade pip
-
-RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
-COPY requirements.txt /usr/src/app/
+COPY requirements.txt .
+RUN pip install --upgrade pip && pip install -r requirements.txt
 
-RUN pip install -r requirements.txt
-
-COPY . /usr/src/app
+COPY . .
 
 EXPOSE 8000
-
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

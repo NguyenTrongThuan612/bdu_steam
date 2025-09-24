@@ -7,7 +7,7 @@ from steam_api.middlewares.permissions import IsManager, IsNotRoot
 from steam_api.helpers.response import RestResponse
 from drf_yasg.utils import swagger_auto_schema
 import logging
-from steam_api.helpers.firebase_storage import upload_image_to_firebase
+from steam_api.helpers.local_storage import upload_file_to_local
 from datetime import datetime
 
 class WebNewsView(viewsets.ViewSet):
@@ -46,7 +46,7 @@ class WebNewsView(viewsets.ViewSet):
                 return RestResponse(data={"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST).response
 
             image = serializer.validated_data.pop('image')
-            image_url = upload_image_to_firebase(image)
+            image_url = upload_file_to_local(image)
             news = News.objects.create(
                 title=serializer.validated_data['title'],
                 link=serializer.validated_data['link'],
@@ -77,7 +77,7 @@ class WebNewsView(viewsets.ViewSet):
             validated_data = serializer.validated_data
 
             if "image" in validated_data:
-                image_url = upload_image_to_firebase(validated_data.pop('image'))
+                image_url = upload_file_to_local(validated_data.pop('image'))
                 news.image = image_url
 
             for key, value in validated_data.items():
