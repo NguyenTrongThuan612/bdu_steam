@@ -109,7 +109,7 @@ class AppLessonGalleryView(viewsets.ViewSet):
                 'lesson__sequence_number'
             )
 
-            serializer = LessonGallerySerializer(galleries, many=True)
+            serializer = LessonGallerySerializer(galleries, many=True, context={'request': request})
             return RestResponse(data=serializer.data, status=status.HTTP_200_OK).response
         except Exception as e:
             logging.getLogger().exception("AppLessonGalleryView.list exc=%s", e)

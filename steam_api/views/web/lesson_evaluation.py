@@ -98,7 +98,7 @@ class WebLessonEvaluationView(viewsets.ViewSet):
                 
             evaluations = evaluations.order_by('lesson__module__sequence_number', 'lesson__sequence_number')
                 
-            serializer = LessonEvaluationSerializer(evaluations, many=True)
+            serializer = LessonEvaluationSerializer(evaluations, many=True, context={'request': request})
             return RestResponse(data=serializer.data, status=status.HTTP_200_OK).response
         except Exception as e:
             logging.getLogger().exception("WebLessonEvaluationView.list exc=%s, params=%s", e, request.query_params)
@@ -164,7 +164,7 @@ class WebLessonEvaluationView(viewsets.ViewSet):
                 ).response
 
             evaluation = serializer.save()
-            response_serializer = LessonEvaluationSerializer(evaluation)
+            response_serializer = LessonEvaluationSerializer(evaluation, context={'request': request})
             return RestResponse(data=response_serializer.data, status=status.HTTP_201_CREATED).response
         except Exception as e:
             logging.getLogger().exception("WebLessonEvaluationView.create exc=%s, req=%s", e, request.data)
@@ -223,7 +223,7 @@ class WebLessonEvaluationView(viewsets.ViewSet):
             logging.getLogger().info("WebLessonEvaluationView.update data=%s", data)
 
             updated_evaluation = serializer.save()
-            response_serializer = LessonEvaluationSerializer(updated_evaluation)
+            response_serializer = LessonEvaluationSerializer(updated_evaluation, context={'request': request})
             return RestResponse(data=response_serializer.data, status=status.HTTP_200_OK).response
         except Exception as e:
             logging.getLogger().exception("WebLessonEvaluationView.update exc=%s, pk=%s, req=%s", e, pk, request.data)

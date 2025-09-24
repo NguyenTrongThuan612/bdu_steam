@@ -29,4 +29,4 @@ schema_view = get_schema_view(
 urlpatterns = [
     path('steam/apis/', include('steam_api.urls')),
     path('steam/swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
-] + static("steam"+settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

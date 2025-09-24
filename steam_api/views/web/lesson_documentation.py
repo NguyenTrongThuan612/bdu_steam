@@ -39,7 +39,7 @@ class WebLessonDocumentationView(viewsets.ViewSet):
             lesson_param = request.query_params.get('lesson')
             if lesson_param:
                 lesson_documentations = lesson_documentations.filter(lesson=lesson_param)
-            serializer = LessonDocumentationSerializer(lesson_documentations, many=True)
+            serializer = LessonDocumentationSerializer(lesson_documentations, many=True, context={'request': request})
             return RestResponse(data=serializer.data, status=status.HTTP_200_OK).response
         except Exception as e:
             logging.getLogger().exception("WebLessonDocumentationView.list exc=%s, req=%s", e, request.query_params)

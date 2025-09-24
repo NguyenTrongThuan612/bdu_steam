@@ -33,7 +33,7 @@ from steam_api.views.health import HealthCheckView
 from steam_api.views.web.lesson_documentation import WebLessonDocumentationView
 from steam_api.views.app.lesson_documentation import AppLessonDocumentationView
 from steam_api.views.app.course_registration import AppCourseRegistrationView
-from steam_api.views.app.web import AppNewsView
+from steam_api.views.app.news import AppNewsView
 from steam_api.views.web.news import WebNewsView
 
 app_router = SimpleRouter(trailing_slash=False)

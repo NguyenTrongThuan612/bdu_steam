@@ -17,7 +17,7 @@ class AppNewsView(viewsets.ViewSet):
         try:
             logging.getLogger().info("AppNewsView.list params=%s", request.query_params)
             news = News.objects.filter(deleted_at__isnull=True).order_by('-posted_at')
-            serializer = NewsSerializer(news, many=True)
+            serializer = NewsSerializer(news, many=True, context={'request': request})
             return RestResponse(data=serializer.data, status=status.HTTP_200_OK).response
         except Exception as e:
             logging.getLogger().exception("AppNewsView.list exc=%s", e)

@@ -88,7 +88,7 @@ class WebLessonGalleryView(viewsets.ViewSet):
                 
             galleries = galleries.order_by('lesson__module__sequence_number', 'lesson__sequence_number')
                 
-            serializer = LessonGallerySerializer(galleries, many=True)
+            serializer = LessonGallerySerializer(galleries, many=True, context={'request': request})
             return RestResponse(data=serializer.data, status=status.HTTP_200_OK).response
         except Exception as e:
             logging.getLogger().exception("WebLessonGalleryView.list exc=%s, params=%s", e, request.query_params)
@@ -160,7 +160,7 @@ class WebLessonGalleryView(viewsets.ViewSet):
             serializer.validated_data['image'] = request.FILES['image']
             gallery = serializer.save()
             
-            response_serializer = LessonGallerySerializer(gallery)
+            response_serializer = LessonGallerySerializer(gallery, context={'request': request})
             return RestResponse(data=response_serializer.data, status=status.HTTP_201_CREATED).response
         except Exception as e:
             logging.getLogger().exception("WebLessonGalleryView.create exc=%s, req=%s", e, request.data)

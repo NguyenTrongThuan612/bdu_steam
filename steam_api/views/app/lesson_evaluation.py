@@ -111,7 +111,7 @@ class AppLessonEvaluationView(viewsets.ViewSet):
                 'lesson__sequence_number'
             )
 
-            serializer = LessonEvaluationSerializer(evaluations, many=True)
+            serializer = LessonEvaluationSerializer(evaluations, many=True, context={'request': request})
             return RestResponse(data=serializer.data, status=status.HTTP_200_OK).response
         except Exception as e:
             logging.getLogger().exception("AppLessonEvaluationView.list exc=%s", e)

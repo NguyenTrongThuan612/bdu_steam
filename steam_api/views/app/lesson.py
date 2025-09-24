@@ -100,7 +100,10 @@ class AppLessonView(viewsets.ViewSet):
             serializer = LessonSerializer(
                 lessons, 
                 many=True,
-                context={'student_id': student_id} if student_id else {}
+                context={
+                    "request": request,
+                    **({'student_id': student_id} if student_id else {})
+                }
             )
             return RestResponse(data=serializer.data, status=status.HTTP_200_OK).response
         except Exception as e:

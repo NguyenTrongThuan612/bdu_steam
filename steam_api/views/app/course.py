@@ -66,7 +66,7 @@ class AppCourseView(viewsets.ViewSet):
                 except Student.DoesNotExist:
                     return RestResponse(message="Student not found!", status=status.HTTP_404_NOT_FOUND).response
 
-            serializer = CourseSerializer(courses, many=True)
+            serializer = CourseSerializer(courses, many=True, context={'request': request})
             return RestResponse(data=serializer.data, status=status.HTTP_200_OK).response
         except Exception as e:
             logging.getLogger().exception("AppCourseView.list exc=%s, params=%s", e, request.query_params)

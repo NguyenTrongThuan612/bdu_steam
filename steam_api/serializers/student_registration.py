@@ -6,7 +6,10 @@ from steam_api.serializers.student import StudentSerializer
 
 class StudentRegistrationSerializer(serializers.ModelSerializer):
     app_user = AppUserSerializer(read_only=True)
-    student = StudentSerializer(read_only=True)
+    student = serializers.SerializerMethodField()
+
+    def get_student(self, obj):
+        return StudentSerializer(obj.student, context={'request': self.context.get('request')}).data
     
     class Meta:
         model = StudentRegistration

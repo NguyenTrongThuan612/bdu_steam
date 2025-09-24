@@ -123,7 +123,7 @@ class AppAttendanceView(viewsets.ViewSet):
                 'lesson__sequence_number'
             )
 
-            serializer = AttendanceSerializer(attendances, many=True)
+            serializer = AttendanceSerializer(attendances, many=True, context={'request': request})
             return RestResponse(data=serializer.data, status=status.HTTP_200_OK).response
         except Exception as e:
             logging.getLogger().exception("AppAttendanceView.list exc=%s", e)

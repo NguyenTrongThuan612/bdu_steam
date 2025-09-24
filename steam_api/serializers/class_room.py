@@ -8,7 +8,10 @@ from steam_api.models.course import Course
 class ClassRoomSerializer(serializers.ModelSerializer):
     teacher = WebUserSerializer(read_only=True)
     teaching_assistant = WebUserSerializer(read_only=True)
-    students = StudentSerializer(source='approved_students', many=True, read_only=True)
+    students = serializers.SerializerMethodField()
+
+    def get_students(self, obj):
+        return StudentSerializer(obj.approved_students, many=True, context={'request': self.context.get('request')}).data
     
     class Meta:
         model = ClassRoom

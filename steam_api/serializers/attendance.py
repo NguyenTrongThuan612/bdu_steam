@@ -4,8 +4,11 @@ from steam_api.serializers.student import StudentSerializer
 from steam_api.serializers.lesson import LessonSerializer
 
 class AttendanceSerializer(serializers.ModelSerializer):
-    student = StudentSerializer(read_only=True)
+    student = serializers.SerializerMethodField()
     lesson = LessonSerializer(read_only=True)
+
+    def get_student(self, obj):
+        return StudentSerializer(obj.student, context={'request': self.context.get('request')}).data
     
     class Meta:
         model = Attendance

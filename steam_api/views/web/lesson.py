@@ -114,7 +114,7 @@ class WebLessonView(viewsets.ViewSet):
                         filtered_lessons.append(lesson)
                 lessons = filtered_lessons
                 
-            serializer = LessonSerializer(lessons, many=True)
+            serializer = LessonSerializer(lessons, many=True, context={'request': request})
             return RestResponse(data=serializer.data, status=status.HTTP_200_OK).response
         except Exception as e:
             logging.getLogger().exception("WebLessonView.list exc=%s", e)
@@ -172,7 +172,7 @@ class WebLessonView(viewsets.ViewSet):
                 ).response
             
             lesson = serializer.save()
-            return RestResponse(data=LessonSerializer(lesson).data, status=status.HTTP_201_CREATED).response
+            return RestResponse(data=LessonSerializer(lesson, context={'request': request}).data, status=status.HTTP_201_CREATED).response
         except Exception as e:
             logging.getLogger().exception("WebLessonView.create exc=%s", e)
             return RestResponse(data={"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR).response
@@ -214,7 +214,7 @@ class WebLessonView(viewsets.ViewSet):
                 return RestResponse(data={"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST).response
                 
             serializer.save()
-            return RestResponse(data=LessonSerializer(lesson).data, status=status.HTTP_200_OK).response
+            return RestResponse(data=LessonSerializer(lesson, context={'request': request}).data, status=status.HTTP_200_OK).response
         except Exception as e:
             logging.getLogger().exception("WebLessonView.update exc=%s", e)
             return RestResponse(data={"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR).response

@@ -2,6 +2,11 @@ from rest_framework import serializers
 from steam_api.models.news import News
 
 class NewsSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+
+    def get_image(self, obj):
+        return self.context.get('request').build_absolute_uri(obj.image)
+
     class Meta:
         model = News
         fields = "__all__"

@@ -7,7 +7,7 @@ from steam_api.models.lesson import Lesson
 from steam_api.serializers.lesson import LessonSerializer
 
 class LessonEvaluationSerializer(serializers.ModelSerializer):
-    student = StudentSerializer(read_only=True)
+    student = serializers.SerializerMethodField()
     lesson = LessonSerializer(read_only=True)
     class_room_name = serializers.CharField(source='lesson.module.class_room.name', read_only=True)
     module_name = serializers.CharField(source='lesson.module.name', read_only=True)
@@ -16,6 +16,9 @@ class LessonEvaluationSerializer(serializers.ModelSerializer):
     class Meta:
         model = LessonEvaluation
         fields = "__all__"
+
+    def get_student(self, obj):
+        return StudentSerializer(obj.student, context={'request': self.context.get('request')}).data
 
     def get_semantic_scores(self, obj : LessonEvaluation):
         result = {}

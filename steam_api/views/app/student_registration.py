@@ -54,7 +54,7 @@ class AppStudentRegistrationView(viewsets.ViewSet):
             
             requests = requests.order_by('-created_at')
             
-            serializer = StudentRegistrationSerializer(requests, many=True)
+            serializer = StudentRegistrationSerializer(requests, many=True, context={'request': request})
             return RestResponse(data=serializer.data, status=status.HTTP_200_OK).response
         except Exception as e:
             logging.getLogger().exception("AppStudentRegistrationView.list exc=%s, params=%s", e, request.query_params)
@@ -71,7 +71,7 @@ class AppStudentRegistrationView(viewsets.ViewSet):
     def create(self, request):
         try:
             logging.getLogger().info("AppStudentRegistrationView.create req=%s", request.data)
-            serializer = CreateStudentRegistrationSerializer(data=request.data, context={'request': request})
+            serializer = CreateStudentRegistrationSerializer(data=request.data)
             
             if not serializer.is_valid():
                 return RestResponse(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST, message="Dữ liệu không hợp lệ!").response

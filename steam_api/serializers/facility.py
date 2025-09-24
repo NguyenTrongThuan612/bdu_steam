@@ -11,7 +11,7 @@ class FacilitySerializer(serializers.ModelSerializer):
     
     def get_images(self, obj):
         active_images = obj.images.filter(deleted_at=None)
-        return FacilityImageSerializer(active_images, many=True).data
+        return FacilityImageSerializer(active_images, many=True, context={'request': self.context.get('request')}).data
     
     def __init__(self, *args, **kwargs):
         existing = set(self.fields.keys())

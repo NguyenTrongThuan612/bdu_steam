@@ -45,7 +45,7 @@ class WebFacilityView(viewsets.ViewSet):
             facility = serializer.save()
             
             return RestResponse(
-                data=FacilitySerializer(facility).data,
+                data=FacilitySerializer(facility, context={'request': request}).data,
                 status=status.HTTP_201_CREATED
             ).response
             
@@ -66,7 +66,7 @@ class WebFacilityView(viewsets.ViewSet):
     def list(self, request: Request) -> Response:
         try:
             queryset = Facility.get_active_facilities().order_by('-created_at')
-            data = FacilitySerializer(queryset, many=True).data
+            data = FacilitySerializer(queryset, many=True, context={'request': request}).data
 
             return RestResponse(
                 data=data,
@@ -112,7 +112,7 @@ class WebFacilityView(viewsets.ViewSet):
             updated_facility = serializer.save()
             
             return RestResponse(
-                data=FacilitySerializer(updated_facility).data,
+                data=FacilitySerializer(updated_facility, context={'request': request}).data,
                 status=status.HTTP_200_OK
             ).response
             
