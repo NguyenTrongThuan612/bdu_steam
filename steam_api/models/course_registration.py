@@ -6,7 +6,13 @@ from steam_api.models.class_room import ClassRoom
 class CourseRegistration(models.Model):
     class Meta:
         db_table = "course_registrations"
-        unique_together = ('student', 'class_room')
+        constraints = [
+            models.UniqueConstraint(
+                fields=['student', 'class_room'],
+                condition=models.Q(deleted_at__isnull=True),
+                name='unique_student_classroom_when_not_deleted'
+            )
+        ]
         
     id = models.BigAutoField(primary_key=True)
     student = models.ForeignKey(Student,null=True, on_delete=models.CASCADE, related_name='course_registrations')

@@ -218,7 +218,7 @@ class WebCourseRegistrationView(viewsets.ViewSet):
             registration.deleted_at = timezone.now()
             registration.save(update_fields=['deleted_at'])
             
-            return RestResponse(status=status.HTTP_204_NO_CONTENT).response
+            return RestResponse(status=status.HTTP_200_OK).response
         except Exception as e:
             logging.getLogger().exception("WebCourseRegistrationView.destroy exc=%s, pk=%s", e, pk)
             return RestResponse(data={"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR).response 
