@@ -1,6 +1,7 @@
 from django.db import models
 from steam_api.models.app_user import AppUser
 from steam_api.models.student import Student
+from django.db.models import Q
 
 class StudentRegistrationStatus(models.TextChoices):
     PENDING = "pending", "Pending"
@@ -10,7 +11,13 @@ class StudentRegistrationStatus(models.TextChoices):
 class StudentRegistration(models.Model):
     class Meta:
         db_table = "student_registrations"
-        unique_together = ['app_user', 'student']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['app_user', 'student'],
+                condition=Q(deleted_at__isnull=True) | Q(status=StudentRegistrationStatus.REJECTED),
+                name='uniq_appuser_student_when_active_or_rejected',
+            ),
+        ]
         
     id = models.BigAutoField(primary_key=True)
     app_user = models.ForeignKey(AppUser, on_delete=models.CASCADE, related_name='student_registrations')
