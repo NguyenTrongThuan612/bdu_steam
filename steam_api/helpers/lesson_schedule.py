@@ -111,7 +111,7 @@ def get_lesson_start_datetime(start_date: datetime.date, schedule: Dict[str, str
     if not start_time:
         return None
     
-    return datetime.combine(lesson_date, datetime.strptime(start_time.split('-')[0], '%H:%M').time())
+    return datetime.combine(lesson_date, datetime.strptime(start_time.split('-')[0], '%H:%M').time(), tzinfo=ZoneInfo('Asia/Ho_Chi_Minh'))
 
 def get_lesson_end_datetime(start_date: datetime.date, schedule: Dict[str, str], lesson_sequence: int) -> datetime:
     lesson_date = get_lesson_date(start_date, schedule, lesson_sequence)
@@ -124,4 +124,4 @@ def get_lesson_end_datetime(start_date: datetime.date, schedule: Dict[str, str],
     if not end_time:
         return None
     
-    return datetime.combine(lesson_date, datetime.strptime(end_time.split('-')[1], '%H:%M').time())
+    return datetime.combine(lesson_date, datetime.strptime(end_time.split('-')[1], '%H:%M').time(), tzinfo=ZoneInfo('Asia/Ho_Chi_Minh'))

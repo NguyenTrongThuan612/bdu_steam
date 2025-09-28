@@ -1,4 +1,6 @@
 from datetime import datetime
+from zoneinfo import ZoneInfo
+
 import logging
 from rest_framework import viewsets, status
 from drf_yasg.utils import swagger_auto_schema
@@ -38,7 +40,8 @@ class WebLessonCheckinView(viewsets.ViewSet):
                 request.user.id, request.data
             )
 
-            checkin_time = datetime.now()
+            checkin_time = datetime.now(ZoneInfo('Asia/Ho_Chi_Minh'))
+            logging.getLogger().info(f"WebLessonCheckinView.create checkin_time: {checkin_time}")
 
             serializer = LessonCheckinCreateSerializer(
                 data=request.data,
@@ -55,34 +58,36 @@ class WebLessonCheckinView(viewsets.ViewSet):
 
             if not lesson.module.class_room.teacher_id == request.user.id and not lesson.module.class_room.teaching_assistant_id == request.user.id:
                 return RestResponse(
-                    message="You are not allowed to check in for this lesson",
+                    message="Bạn không có quyền checkin buổi học này!",
                     status=status.HTTP_403_FORBIDDEN
                 ).response
             
             if LessonCheckin.objects.filter(lesson=lesson, user=request.user, deleted_at__isnull=True).exists():
                 return RestResponse(
-                    message="You have already checked in for this lesson",
+                    message="Bạn đã checkin buổi học này rồi!",
                     status=status.HTTP_400_BAD_REQUEST
                 ).response
             
             if not lesson.module.class_room.schedule:
                 return RestResponse(
-                    message="Class room has no schedule",
+                    message="Lớp học không có lịch học!",
                     status=status.HTTP_400_BAD_REQUEST
                 ).response
-            
-            time_diff = lesson.start_datetime - checkin_time
 
-            if time_diff.total_seconds() > 900:
+            logging.getLogger().info(f"WebLessonCheckinView.create lesson.start_datetime: {lesson.start_datetime}")
+            time_diff = abs((lesson.start_datetime - checkin_time).total_seconds())
+            logging.getLogger().info(f"WebLessonCheckinView.create time_diff: {time_diff}")
+
+            if time_diff > 900:
                 return RestResponse(
-                    message="Checkin is only allowed within 15 minutes before the lesson starts",
+                    message="Checkin chỉ được thực hiện trong vòng 15 phút trước buổi học!",
                     status=status.HTTP_400_BAD_REQUEST
                 ).response
             
-            checkin = serializer.save()
+            # checkin = serializer.save()
                 
             return RestResponse(
-                data=LessonCheckinSerializer(checkin, context={'request': request}).data,
+                # data=LessonCheckinSerializer(checkin, context={'request': request}).data,
                 status=status.HTTP_200_OK
             ).response
             
