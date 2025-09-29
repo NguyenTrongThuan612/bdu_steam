@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - 8001:8000
+      - <port_on_host>:8000 # TODO: change to your port on host
     restart: always
     environment:
       - DATABASE_ENGINE=mysql
@@ -18,14 +18,14 @@ services:
       - REDIS_PORT=6379
       - REDIS_USERNAME=""
       - REDIS_PASSWORD=""
-      - EMAIL_HOST=smtp.gmail.com
-      - EMAIL_PORT=587
-      - EMAIL_HOST_USER=""
-      - EMAIL_HOST_PASSWORD=""
+      - EMAIL_HOST=smtp.gmail.com # TODO: change to your email host
+      - EMAIL_PORT=587 # TODO: change to your email port
+      - EMAIL_HOST_USER="" # TODO: change to your email host user
+      - EMAIL_HOST_PASSWORD="" # TODO: change to your email host password
       - BETTERSTACK_LOG_TOKEN=dXECcUYZxNVLX5GHN8XyRhzt
       - BETTERSTACK_LOG_HOST=s1529184.eu-nbg-2.betterstackdata.com
     volumes:
-      - /Users/ghn00826/Desktop/steam_api:/usr/src/app/media
+      - <path_on_host>/steam:/usr/src/app/media # TODO: change to your media path
     depends_on:
       - steam_mysql
       - steam_redis
@@ -37,17 +37,17 @@ services:
       MYSQL_DATABASE: "steam"
       MYSQL_ROOT_PASSWORD: "steam"
     ports:
-      - 3308:3306
+      - <port_on_host>:3306 # TODO: change to your port on host
     volumes:
-      - mysql_data:/var/lib/mysql
+      - mysql_data:/var/lib/mysql # TODO: change to your mysql data path
 
   steam_redis:
     image: redis:6.0
     restart: always
     ports:
-      - 6381:6379
+      - <port_on_host>:6379 # TODO: change to your port on host
     volumes:
-      - redis_data:/data
+      - redis_data:/data # TODO: change to your redis data path
 
 volumes:
   mysql_data:
