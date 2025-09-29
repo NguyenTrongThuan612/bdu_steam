@@ -22,12 +22,10 @@ services:
       - EMAIL_PORT=587
       - EMAIL_HOST_USER=""
       - EMAIL_HOST_PASSWORD=""
-      - FIREBASE_CERTIFICATE=/usr/src/app/firebase_cert.json
-      - FIREBASE_STORAGE_BUCKET_URL=test-firebase-acfc3.appspot.com
       - BETTERSTACK_LOG_TOKEN=dXECcUYZxNVLX5GHN8XyRhzt
       - BETTERSTACK_LOG_HOST=s1529184.eu-nbg-2.betterstackdata.com
     volumes:
-      - /data:/usr/src/app
+      - /Users/ghn00826/Desktop/steam_api:/usr/src/app/media
     depends_on:
       - steam_mysql
       - steam_redis
