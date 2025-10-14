@@ -11,7 +11,7 @@ class ClassRoomSerializer(serializers.ModelSerializer):
     students = serializers.SerializerMethodField()
 
     def get_students(self, obj):
-        return StudentSerializer(obj.approved_students, many=True, context={'request': self.context.get('request')}).data
+        return StudentSerializer(obj.approved_students, many=True).data
     
     class Meta:
         model = ClassRoom

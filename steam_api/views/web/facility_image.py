@@ -44,7 +44,7 @@ class WebFacilityImageView(viewsets.ViewSet):
             facility_image = serializer.save()
             
             return RestResponse(
-                data=FacilityImageSerializer(facility_image, context={'request': request}).data,
+                data=FacilityImageSerializer(facility_image).data,
                 status=status.HTTP_201_CREATED
             ).response
             
@@ -101,7 +101,7 @@ class WebFacilityImageView(viewsets.ViewSet):
                 ).response
             
             return RestResponse(
-                data=FacilityImageSerializer(facility_image, context={'request': request}).data,
+                data=FacilityImageSerializer(facility_image).data,
                 status=status.HTTP_200_OK
             ).response
             

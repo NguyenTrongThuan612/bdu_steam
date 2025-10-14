@@ -79,7 +79,7 @@ class WebCourseRegistrationView(viewsets.ViewSet):
                 
             registrations = registrations.order_by('-created_at')
                 
-            serializer = CourseRegistrationSerializer(registrations, many=True, context={'request': request})
+            serializer = CourseRegistrationSerializer(registrations, many=True)
             return RestResponse(data=serializer.data, status=status.HTTP_200_OK).response
         except Exception as e:
             logging.getLogger().exception("WebCourseRegistrationView.list exc=%s, params=%s", e, request.query_params)
@@ -126,7 +126,7 @@ class WebCourseRegistrationView(viewsets.ViewSet):
 
             data["status"] = "approved"
             registration = serializer.save()
-            response_serializer = CourseRegistrationSerializer(registration, context={'request': request})
+            response_serializer = CourseRegistrationSerializer(registration)
             
             return RestResponse(data=response_serializer.data, status=status.HTTP_201_CREATED).response
         except Exception as e:
@@ -185,7 +185,7 @@ class WebCourseRegistrationView(viewsets.ViewSet):
                 ).response
 
             updated_registration = serializer.save()
-            response_serializer = CourseRegistrationSerializer(updated_registration, context={'request': request})
+            response_serializer = CourseRegistrationSerializer(updated_registration)
             
             return RestResponse(data=response_serializer.data, status=status.HTTP_200_OK).response
         except Exception as e:

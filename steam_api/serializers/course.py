@@ -6,7 +6,7 @@ class CourseSerializer(serializers.ModelSerializer):
     thumbnail_url = serializers.SerializerMethodField()
 
     def get_thumbnail_url(self, obj):
-        return self.context.get('request').build_absolute_uri(obj.thumbnail_url)
+        return obj.get_thumbnail_url()
 
     class Meta:
         model = Course

@@ -7,7 +7,7 @@ class LessonGallerySerializer(serializers.ModelSerializer):
     image_urls = serializers.SerializerMethodField()
 
     def get_image_urls(self, obj):
-        return [self.context.get('request').build_absolute_uri(image_url) for image_url in obj.image_urls]
+        return obj.get_image_urls()
 
     class Meta:
         model = LessonGallery

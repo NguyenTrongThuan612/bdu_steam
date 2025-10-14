@@ -54,7 +54,7 @@ class AppStudentRegistrationView(viewsets.ViewSet):
             
             requests = requests.order_by('-created_at')
             
-            serializer = StudentRegistrationSerializer(requests, many=True, context={'request': request})
+            serializer = StudentRegistrationSerializer(requests, many=True)
             return RestResponse(data=serializer.data, status=status.HTTP_200_OK).response
         except Exception as e:
             logging.getLogger().exception("AppStudentRegistrationView.list exc=%s, params=%s", e, request.query_params)

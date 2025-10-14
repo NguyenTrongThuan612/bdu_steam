@@ -41,7 +41,7 @@ class WebCourseView(viewsets.ViewSet):
             logging.getLogger().info("WebCourseView.list params=%s", request.query_params)
             courses = Course.objects.filter(is_active=True, deleted_at__isnull=True)
 
-            serializer = CourseSerializer(courses, many=True, context={'request': request})
+            serializer = CourseSerializer(courses, many=True)
             return RestResponse(data=serializer.data, status=status.HTTP_200_OK).response
         except Exception as e:
             logging.getLogger().exception("WebCourseView.list exc=%s, params=%s", e, request.query_params)
@@ -70,7 +70,7 @@ class WebCourseView(viewsets.ViewSet):
             except Course.DoesNotExist:
                 return RestResponse(status=status.HTTP_404_NOT_FOUND).response
 
-            serializer = CourseSerializer(course, context={'request': request})
+            serializer = CourseSerializer(course)
             return RestResponse(data=serializer.data, status=status.HTTP_200_OK).response
         except Exception as e:
             logging.getLogger().exception("WebCourseView.retrieve exc=%s, pk=%s", e, pk)
@@ -113,7 +113,7 @@ class WebCourseView(viewsets.ViewSet):
                 serializer.validated_data['thumbnail'] = request.FILES['thumbnail']
 
             course = serializer.save()
-            response_serializer = CourseSerializer(course, context={'request': request})
+            response_serializer = CourseSerializer(course)
             
             return RestResponse(data=response_serializer.data, status=status.HTTP_201_CREATED).response
         except Exception as e:
@@ -163,7 +163,7 @@ class WebCourseView(viewsets.ViewSet):
                 serializer.validated_data['thumbnail'] = request.FILES['thumbnail']
 
             updated_course = serializer.save()
-            response_serializer = CourseSerializer(updated_course, context={'request': request})
+            response_serializer = CourseSerializer(updated_course)
             
             return RestResponse(data=response_serializer.data, status=status.HTTP_200_OK).response
         except Exception as e:

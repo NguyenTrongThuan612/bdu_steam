@@ -76,7 +76,7 @@ class WebClassRoomView(viewsets.ViewSet):
             if request.user.role == WebUserRole.TEACHER:
                 classes = classes.filter(teacher=request.user) | classes.filter(teaching_assistant=request.user)
                 
-            serializer = ClassRoomSerializer(classes, many=True, context={'request': request})
+            serializer = ClassRoomSerializer(classes, many=True)
             return RestResponse(data=serializer.data, status=status.HTTP_200_OK).response
         except Exception as e:
             logging.getLogger().exception("WebClassRoomView.list exc=%s, params=%s", e, request.query_params)
@@ -109,7 +109,7 @@ class WebClassRoomView(viewsets.ViewSet):
                 if class_room.teacher != request.user and class_room.teaching_assistant != request.user:
                     return RestResponse(status=status.HTTP_403_FORBIDDEN).response
 
-            serializer = ClassRoomSerializer(class_room, context={'request': request})
+            serializer = ClassRoomSerializer(class_room)
             return RestResponse(data=serializer.data, status=status.HTTP_200_OK).response
         except Exception as e:
             logging.getLogger().exception("WebClassRoomView.retrieve exc=%s, pk=%s", e, pk)
@@ -155,7 +155,7 @@ class WebClassRoomView(viewsets.ViewSet):
                 ).response
 
             class_room = serializer.save()
-            response_serializer = ClassRoomSerializer(class_room, context={'request': request})
+            response_serializer = ClassRoomSerializer(class_room)
             
             return RestResponse(data=response_serializer.data, status=status.HTTP_201_CREATED).response
         except Exception as e:
@@ -224,7 +224,7 @@ class WebClassRoomView(viewsets.ViewSet):
                     ).response
                 
             updated_class = serializer.save()
-            response_serializer = ClassRoomSerializer(updated_class, context={'request': request})
+            response_serializer = ClassRoomSerializer(updated_class)
             
             return RestResponse(data=response_serializer.data, status=status.HTTP_200_OK).response
         except Exception as e:
@@ -306,7 +306,7 @@ class WebClassRoomView(viewsets.ViewSet):
             class_room.thumbnail = request.FILES['thumbnail']
             class_room.save(update_fields=['thumbnail'])
             
-            serializer = ClassRoomSerializer(class_room, context={'request': request})
+            serializer = ClassRoomSerializer(class_room)
             return RestResponse(data=serializer.data, status=status.HTTP_200_OK).response
         except Exception as e:
             logging.getLogger().exception("WebClassRoomView.set_thumbnail exc=%s, pk=%s", e, pk)

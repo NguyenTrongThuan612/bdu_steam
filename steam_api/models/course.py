@@ -1,5 +1,5 @@
 from django.db import models
-from django.utils import timezone
+from django.conf import settings
 
 class Course(models.Model):
     class Meta:
@@ -15,3 +15,6 @@ class Course(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     deleted_at = models.DateTimeField(null=True)
+
+    def get_thumbnail_url(self):
+        return f"{settings.APP_DOMAIN}{self.thumbnail_url}"

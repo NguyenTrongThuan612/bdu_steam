@@ -1,5 +1,6 @@
 from django.db import models
 from steam_api.models.facility import Facility
+from django.conf import settings
 
 class FacilityImage(models.Model):
     class Meta:
@@ -30,4 +31,7 @@ class FacilityImage(models.Model):
     
     @classmethod
     def get_active_images(cls):
-        return cls.objects.filter(deleted_at=None) 
+        return cls.objects.filter(deleted_at=None)
+
+    def get_image_url(self):
+        return f"{settings.APP_DOMAIN}{self.image_url}"

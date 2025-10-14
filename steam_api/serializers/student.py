@@ -6,7 +6,7 @@ class StudentSerializer(serializers.ModelSerializer):
     avatar_url = serializers.SerializerMethodField()
 
     def get_avatar_url(self, obj):
-        return self.context.get('request').build_absolute_uri(obj.avatar_url)
+        return obj.get_avatar_url()
 
     class Meta:
         model = Student

@@ -1,5 +1,6 @@
 from django.db import models
 from steam_api.models.lesson import Lesson
+from django.conf import settings
 
 class LessonDocumentation(models.Model):
     class Meta:
@@ -11,3 +12,6 @@ class LessonDocumentation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     deleted_at = models.DateTimeField(null=True, blank=True)
+
+    def get_link(self):
+        return f"{settings.APP_DOMAIN}{self.link}"

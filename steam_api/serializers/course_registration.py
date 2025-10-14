@@ -10,7 +10,7 @@ class CourseRegistrationSerializer(serializers.ModelSerializer):
     class_room = ClassRoomSerializer(read_only=True)
     
     def get_student(self, obj):
-        return StudentSerializer(obj.student, context={'request': self.context.get('request')}).data
+        return StudentSerializer(obj.student).data
     
     class Meta:
         model = CourseRegistration

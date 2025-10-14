@@ -18,7 +18,7 @@ class LessonEvaluationSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     def get_student(self, obj):
-        return StudentSerializer(obj.student, context={'request': self.context.get('request')}).data
+        return StudentSerializer(obj.student).data
 
     def get_semantic_scores(self, obj : LessonEvaluation):
         result = {}

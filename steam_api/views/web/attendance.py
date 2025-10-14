@@ -130,7 +130,7 @@ class WebAttendanceView(viewsets.ViewSet):
         try:
             logging.getLogger().info("WebAttendanceView.create req=%s", request.data)
             
-            serializer = CreateAttendanceSerializer(data=request.data, context={'request': request})
+            serializer = CreateAttendanceSerializer(data=request.data)
             if not serializer.is_valid():
                 return RestResponse(data={"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST).response
             

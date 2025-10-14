@@ -72,7 +72,7 @@ class WebStudentView(viewsets.ViewSet):
                     Q(parent_phone__icontains=search)
                 )
                 
-            serializer = StudentSerializer(students, many=True, context={'request': request})
+            serializer = StudentSerializer(students, many=True)
             return RestResponse(data=serializer.data, status=status.HTTP_200_OK).response
         except Exception as e:
             logging.getLogger().exception("WebStudentView.list exc=%s, params=%s", e, request.query_params)
@@ -104,7 +104,7 @@ class WebStudentView(viewsets.ViewSet):
             except Student.DoesNotExist:
                 return RestResponse(status=status.HTTP_404_NOT_FOUND).response
 
-            serializer = StudentSerializer(student, context={'request': request})
+            serializer = StudentSerializer(student)
             return RestResponse(data=serializer.data, status=status.HTTP_200_OK).response
         except Exception as e:
             logging.getLogger().exception("WebStudentView.retrieve exc=%s, pk=%s", e, pk)
@@ -147,7 +147,7 @@ class WebStudentView(viewsets.ViewSet):
                 serializer.validated_data['avatar'] = request.FILES['avatar']
 
             student = serializer.save()
-            response_serializer = StudentSerializer(student, context={'request': request})
+            response_serializer = StudentSerializer(student)
             
             return RestResponse(data=response_serializer.data, status=status.HTTP_201_CREATED).response
         except Exception as e:
@@ -197,7 +197,7 @@ class WebStudentView(viewsets.ViewSet):
                 serializer.validated_data['avatar'] = request.FILES['avatar']
 
             updated_student = serializer.save()
-            response_serializer = StudentSerializer(updated_student, context={'request': request})
+            response_serializer = StudentSerializer(updated_student)
             
             return RestResponse(data=response_serializer.data, status=status.HTTP_200_OK).response
         except Exception as e:

@@ -3,6 +3,11 @@ from steam_api.models.lesson_documentation import LessonDocumentation
 from steam_api.models.lesson import Lesson
 
 class LessonDocumentationSerializer(serializers.ModelSerializer):
+    link = serializers.SerializerMethodField()
+
+    def get_link(self, obj):
+        return obj.get_link()
+
     class Meta:
         model = LessonDocumentation
         fields = '__all__'

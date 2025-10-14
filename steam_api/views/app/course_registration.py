@@ -80,7 +80,7 @@ class AppCourseRegistrationView(viewsets.ViewSet):
                 
             registrations = registrations.order_by('-created_at')
                 
-            serializer = CourseRegistrationSerializer(registrations, many=True, context={'request': request})
+            serializer = CourseRegistrationSerializer(registrations, many=True)
             return RestResponse(data=serializer.data, status=status.HTTP_200_OK).response
         except Exception as e:
             logging.getLogger().exception("AppCourseRegistrationView.list exc=%s, params=%s", e, request.query_params)
@@ -139,7 +139,7 @@ class AppCourseRegistrationView(viewsets.ViewSet):
 
             data["status"] = "pending"
             registration = serializer.save()
-            response_serializer = CourseRegistrationSerializer(registration, context={'request': request})
+            response_serializer = CourseRegistrationSerializer(registration)
             
             return RestResponse(data=response_serializer.data, status=status.HTTP_201_CREATED).response
         except Exception as e:

@@ -101,7 +101,6 @@ class AppLessonView(viewsets.ViewSet):
                 lessons, 
                 many=True,
                 context={
-                    "request": request,
                     **({'student_id': student_id} if student_id else {})
                 }
             )

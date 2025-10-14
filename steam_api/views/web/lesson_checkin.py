@@ -84,10 +84,10 @@ class WebLessonCheckinView(viewsets.ViewSet):
                     status=status.HTTP_400_BAD_REQUEST
                 ).response
             
-            # checkin = serializer.save()
+            checkin = serializer.save()
                 
             return RestResponse(
-                # data=LessonCheckinSerializer(checkin, context={'request': request}).data,
+                data=LessonCheckinSerializer(checkin).data,
                 status=status.HTTP_200_OK
             ).response
             
@@ -177,7 +177,7 @@ class WebLessonCheckinView(viewsets.ViewSet):
                 'user'
             ).order_by('-created_at')
             
-            serializer = LessonCheckinSerializer(queryset, many=True, context={'request': request})
+            serializer = LessonCheckinSerializer(queryset, many=True)
             return RestResponse(
                 data=serializer.data,
                 status=status.HTTP_200_OK

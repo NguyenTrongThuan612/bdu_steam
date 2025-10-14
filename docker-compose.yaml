@@ -24,6 +24,7 @@ services:
       - EMAIL_HOST_PASSWORD= # TODO: change to your email host password
       - BETTERSTACK_LOG_TOKEN=dXECcUYZxNVLX5GHN8XyRhzt
       - BETTERSTACK_LOG_HOST=s1529184.eu-nbg-2.betterstackdata.com
+      - APP_DOMAIN=https://stem.bdu.edu.vn
     volumes:
       - <path_on_host>/steam:/usr/src/app/media # TODO: change to your media path
     depends_on:

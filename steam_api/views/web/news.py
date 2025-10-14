@@ -28,7 +28,7 @@ class WebNewsView(viewsets.ViewSet):
         try:
             logging.getLogger().info("WebNewsView.list params=%s", request.query_params)
             news = News.objects.filter(deleted_at__isnull=True).order_by('-posted_at')
-            serializer = NewsSerializer(news, many=True, context={'request': request})
+            serializer = NewsSerializer(news, many=True)
             return RestResponse(data=serializer.data, status=status.HTTP_200_OK).response
         except Exception as e:
             logging.getLogger().exception("WebNewsView.list exc=%s", e)
@@ -55,7 +55,7 @@ class WebNewsView(viewsets.ViewSet):
                 posted_at=serializer.validated_data['posted_at']
             )
             
-            return RestResponse(data=NewsSerializer(news, context={'request': request}).data, status=status.HTTP_201_CREATED).response
+            return RestResponse(data=NewsSerializer(news).data, status=status.HTTP_201_CREATED).response
         except Exception as e:
             logging.getLogger().exception("WebNewsView.create exc=%s", e)
             return RestResponse(data={"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR).response
@@ -86,7 +86,7 @@ class WebNewsView(viewsets.ViewSet):
 
             news.save()
 
-            return RestResponse(data=NewsSerializer(news, context={'request': request}).data, status=status.HTTP_200_OK).response
+            return RestResponse(data=NewsSerializer(news).data, status=status.HTTP_200_OK).response
         except News.DoesNotExist:
             return RestResponse(status=status.HTTP_404_NOT_FOUND).response
         except Exception as e:

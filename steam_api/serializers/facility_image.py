@@ -7,7 +7,7 @@ class FacilityImageSerializer(serializers.ModelSerializer):
     image_url = serializers.SerializerMethodField()
 
     def get_image_url(self, obj):
-        return self.context.get('request').build_absolute_uri(obj.image_url)
+        return obj.get_image_url()
     
     class Meta:
         model = FacilityImage

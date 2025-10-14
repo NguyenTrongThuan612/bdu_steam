@@ -5,7 +5,7 @@ class NewsSerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField()
 
     def get_image(self, obj):
-        return self.context.get('request').build_absolute_uri(obj.image)
+        return obj.get_image_url()
 
     class Meta:
         model = News

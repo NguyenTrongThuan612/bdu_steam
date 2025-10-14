@@ -68,7 +68,7 @@ class AppClassRoomView(viewsets.ViewSet):
             
             class_rooms = ClassRoom.objects.filter(id__in=class_rooms)
             
-            serializer = ClassRoomSerializer(class_rooms, many=True, context={'request': request})
+            serializer = ClassRoomSerializer(class_rooms, many=True)
             return RestResponse(data=serializer.data, status=status.HTTP_200_OK).response
         except Exception as e:
             logging.getLogger().exception("AppClassRoomView.list exc=%s", e)

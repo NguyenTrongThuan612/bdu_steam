@@ -25,7 +25,7 @@ class AppFacilityView(viewsets.ViewSet):
     def list(self, request: Request) -> Response:
         try:
             queryset = Facility.get_active_facilities().order_by('-created_at')
-            data = FacilitySerializer(queryset, many=True, context={'request': request}).data
+            data = FacilitySerializer(queryset, many=True).data
 
             return RestResponse(
                 data=data,

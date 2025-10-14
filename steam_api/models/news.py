@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 
 class News(models.Model):
     class Meta:
@@ -12,3 +13,6 @@ class News(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     deleted_at = models.DateTimeField(null=True)
+
+    def get_image_url(self):
+        return f"{settings.APP_DOMAIN}{self.image}"

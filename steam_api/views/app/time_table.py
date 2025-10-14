@@ -52,7 +52,7 @@ class AppTimeTableView(viewsets.ViewSet):
             
             lessons = Lesson.objects.filter(module__class_room=class_room).order_by("module__sequence_number", "sequence_number")
             
-            return RestResponse(data=LessonSerializer(lessons, many=True, context={'request': request}).data, status=status.HTTP_200_OK).response
+            return RestResponse(data=LessonSerializer(lessons, many=True).data, status=status.HTTP_200_OK).response
 
         except Student.DoesNotExist:
             return RestResponse(message="Không tìm thấy thông tin học viên!", status=status.HTTP_404_NOT_FOUND).response

@@ -60,7 +60,7 @@ class WebStudentRegistrationView(viewsets.ViewSet):
                 
             requests = requests.order_by('-created_at')
                 
-            serializer = StudentRegistrationSerializer(requests, many=True, context={'request': request})
+            serializer = StudentRegistrationSerializer(requests, many=True)
             return RestResponse(data=serializer.data, status=status.HTTP_200_OK).response
         except Exception as e:
             logging.getLogger().exception("WebStudentRegistrationView.list exc=%s", e)
@@ -110,7 +110,7 @@ class WebStudentRegistrationView(viewsets.ViewSet):
                 ).response
                 
             updated_request = serializer.save()
-            response_serializer = StudentRegistrationSerializer(updated_request, context={'request': request})
+            response_serializer = StudentRegistrationSerializer(updated_request)
             
             return RestResponse(
                 data=response_serializer.data,

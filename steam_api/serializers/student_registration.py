@@ -9,7 +9,7 @@ class StudentRegistrationSerializer(serializers.ModelSerializer):
     student = serializers.SerializerMethodField()
 
     def get_student(self, obj):
-        return StudentSerializer(obj.student, context={'request': self.context.get('request')}).data
+        return StudentSerializer(obj.student).data
     
     class Meta:
         model = StudentRegistration

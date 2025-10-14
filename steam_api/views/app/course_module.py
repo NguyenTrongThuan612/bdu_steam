@@ -82,7 +82,7 @@ class AppCourseModuleView(viewsets.ViewSet):
                 'class_room__course'
             ).order_by('class_room__name', 'sequence_number')
 
-            serializer = CourseModuleSerializer(modules, many=True, context={'request': request})
+            serializer = CourseModuleSerializer(modules, many=True)
             return RestResponse(data=serializer.data, status=status.HTTP_200_OK).response
         except Exception as e:
             logging.getLogger().exception("AppCourseModuleView.list exc=%s", e)
