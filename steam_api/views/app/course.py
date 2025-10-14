@@ -64,7 +64,7 @@ class AppCourseView(viewsets.ViewSet):
                     
                     courses = courses.filter(classes__in=registration.class_room).distinct()
                 except Student.DoesNotExist:
-                    return RestResponse(message="Student not found!", status=status.HTTP_404_NOT_FOUND).response
+                    return RestResponse(message="Không tìm thấy thông tin học viên!", status=status.HTTP_404_NOT_FOUND).response
 
             serializer = CourseSerializer(courses, many=True, context={'request': request})
             return RestResponse(data=serializer.data, status=status.HTTP_200_OK).response

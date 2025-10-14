@@ -39,7 +39,7 @@ class WebFacilityView(viewsets.ViewSet):
                 return RestResponse(
                     data=serializer.errors,
                     status=status.HTTP_400_BAD_REQUEST,
-                    message="Please check your data!"
+                    message="Vui lòng kiểm tra lại dữ liệu!"
                 ).response
             
             facility = serializer.save()
@@ -53,7 +53,6 @@ class WebFacilityView(viewsets.ViewSet):
             logger.exception("WebFacilityView.create exc=%s, req=%s", e, request.data)
             return RestResponse(
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                message="Internal server error"
             ).response
 
     @swagger_auto_schema(
@@ -98,7 +97,7 @@ class WebFacilityView(viewsets.ViewSet):
             except Facility.DoesNotExist:
                 return RestResponse(
                     status=status.HTTP_404_NOT_FOUND,
-                    message="Facility not found"
+                    message="Không tìm thấy cơ sở vật chất này!"
                 ).response
             
             serializer = FacilityUpdateSerializer(facility, data=request.data, partial=True)
@@ -106,7 +105,7 @@ class WebFacilityView(viewsets.ViewSet):
                 return RestResponse(
                     data=serializer.errors,
                     status=status.HTTP_400_BAD_REQUEST,
-                    message="Please check your data!"
+                    message="Vui lòng kiểm tra lại dữ liệu!"
                 ).response
             
             updated_facility = serializer.save()
@@ -120,7 +119,6 @@ class WebFacilityView(viewsets.ViewSet):
             logger.exception("WebFacilityView.update exc=%s, pk=%s, req=%s", e, pk, request.data)
             return RestResponse(
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                message="Internal server error"
             ).response
 
     @swagger_auto_schema(
@@ -138,7 +136,7 @@ class WebFacilityView(viewsets.ViewSet):
             except Facility.DoesNotExist:
                 return RestResponse(
                     status=status.HTTP_404_NOT_FOUND,
-                    message="Facility not found"
+                    message="Không tìm thấy cơ sở vật chất này!"
                 ).response
             
             facility.soft_delete()
@@ -149,5 +147,4 @@ class WebFacilityView(viewsets.ViewSet):
             logger.exception("WebFacilityView.destroy exc=%s, pk=%s", e, pk)
             return RestResponse(
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                message="Internal server error"
             ).response

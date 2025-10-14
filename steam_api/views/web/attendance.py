@@ -140,13 +140,13 @@ class WebAttendanceView(viewsets.ViewSet):
             if data['lesson'].module.class_room.teacher != request.user and data['lesson'].module.class_room.teaching_assistant != request.user:
                 return RestResponse(
                     status=status.HTTP_403_FORBIDDEN,
-                    message="You are not authorized to create attendance for this lesson"
+                    message="Bạn không có quyền điểm danh buổi học này!"   
                 ).response
             
             if data['lesson'].status != 'completed':
                 return RestResponse(
                     status=status.HTTP_403_FORBIDDEN,
-                    message="Lesson is not completed"
+                    message="Buổi học này chưa hoàn thành!"
                 ).response
             
             if Attendance.objects.filter(
@@ -156,7 +156,7 @@ class WebAttendanceView(viewsets.ViewSet):
             ).exists():
                 return RestResponse(
                     status=status.HTTP_400_BAD_REQUEST,
-                    message="Attendance record already exists for this student and lesson"
+                    message="Học viên đã điểm danh buổi học này!"
                 ).response
             
             if not CourseRegistration.objects.filter(
@@ -167,7 +167,7 @@ class WebAttendanceView(viewsets.ViewSet):
             ).exists():
                 return RestResponse(
                     status=status.HTTP_400_BAD_REQUEST,
-                    message="Student is not registered for this class or registration is not approved"
+                    message="Học viên chưa đăng ký lớp này hoặc đăng ký chưa được phê duyệt!"
                 ).response
             
             checkin = LessonCheckin.objects.filter(
@@ -178,7 +178,7 @@ class WebAttendanceView(viewsets.ViewSet):
             if not checkin:
                 return RestResponse(
                     status=status.HTTP_400_BAD_REQUEST,
-                    message="Teacher or teaching assistant has not checked in"
+                    message="Giáo viên hoặc trợ giảng chưa checkin buổi học này!"
                 ).response
             
             attendance = serializer.save()

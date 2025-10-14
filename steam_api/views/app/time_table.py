@@ -39,7 +39,7 @@ class AppTimeTableView(viewsets.ViewSet):
             class_room_id = request.query_params.get('class_room', None)
 
             if not student_id or not class_room_id:
-                return RestResponse(message="Student and class room are required!", status=status.HTTP_400_BAD_REQUEST).response
+                return RestResponse(message="Học viên và lớp học là bắt buộc!", status=status.HTTP_400_BAD_REQUEST).response
             
             student = Student.objects.get(id=student_id)
             class_room = ClassRoom.objects.get(id=class_room_id)
@@ -55,9 +55,9 @@ class AppTimeTableView(viewsets.ViewSet):
             return RestResponse(data=LessonSerializer(lessons, many=True, context={'request': request}).data, status=status.HTTP_200_OK).response
 
         except Student.DoesNotExist:
-            return RestResponse(message="Student not found!", status=status.HTTP_404_NOT_FOUND).response
+            return RestResponse(message="Không tìm thấy thông tin học viên!", status=status.HTTP_404_NOT_FOUND).response
         except ClassRoom.DoesNotExist:
-            return RestResponse(message="Class room not found!", status=status.HTTP_404_NOT_FOUND).response
+            return RestResponse(message="Không tìm thấy thông tin lớp học!", status=status.HTTP_404_NOT_FOUND).response
         except Exception as e:
             logging.getLogger().exception("AppTimeTableView.list exc=%s, params=%s", e, request.query_params)
             return RestResponse(status=status.HTTP_500_INTERNAL_SERVER_ERROR).response

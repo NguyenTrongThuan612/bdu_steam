@@ -87,7 +87,7 @@ class WebStudentRegistrationView(viewsets.ViewSet):
                 )
             except StudentRegistration.DoesNotExist:
                 return RestResponse(
-                    message="Registration request not found or already processed",
+                    message="Yêu cầu đăng ký không tồn tại hoặc đã được xử lý!",
                     status=status.HTTP_404_NOT_FOUND
                 ).response
             
@@ -106,7 +106,7 @@ class WebStudentRegistrationView(viewsets.ViewSet):
             if data.get('status', None) not in [StudentRegistrationStatus.APPROVED.value, StudentRegistrationStatus.REJECTED.value]:
                 return RestResponse(
                     status=status.HTTP_400_BAD_REQUEST,
-                    message="Status must be either approved or rejected" 
+                    message="Trạng thái phải là Chấp nhận hoặc Từ chối" 
                 ).response
                 
             updated_request = serializer.save()
@@ -114,7 +114,7 @@ class WebStudentRegistrationView(viewsets.ViewSet):
             
             return RestResponse(
                 data=response_serializer.data,
-                message="Registration request updated successfully",
+                message="Cập nhật yêu cầu đăng ký thành công!",
                 status=status.HTTP_200_OK
             ).response
         except Exception as e:

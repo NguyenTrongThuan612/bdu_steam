@@ -36,5 +36,4 @@ class AppFacilityView(viewsets.ViewSet):
             logger.exception("AppFacilityView.list exc=%s", e)
             return RestResponse(
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                message="Internal server error"
             ).response

@@ -145,13 +145,13 @@ class WebClassRoomView(viewsets.ViewSet):
             if data['teaching_assistant'] and data['teacher'] and data['teaching_assistant'] == data['teacher']:
                 return RestResponse(
                     status=status.HTTP_400_BAD_REQUEST,
-                    message="Teacher and teaching assistant cannot be the same person"
+                    message="Giáo viên và trợ giảng không thể là cùng một người!"
                 ).response
             
             if data['start_date'] > data['end_date']:
                 return RestResponse(
                     status=status.HTTP_400_BAD_REQUEST,
-                    message="Start date must be before end date"
+                    message="Ngày bắt đầu phải trước ngày kết thúc!"
                 ).response
 
             class_room = serializer.save()
@@ -201,26 +201,26 @@ class WebClassRoomView(viewsets.ViewSet):
             if teacher and assistant and teacher == assistant:
                 return RestResponse(
                     status=status.HTTP_400_BAD_REQUEST,
-                    message="Teacher and teaching assistant cannot be the same person"
+                    message="Giáo viên và trợ giảng không thể là cùng một người!"
                 ).response 
             
             if 'start_date' in data and 'end_date' in data:
                 if data['start_date'] > data['end_date']:
                     return RestResponse(
                         status=status.HTTP_400_BAD_REQUEST,
-                        message="Start date must be before end date"
+                        message="Ngày bắt đầu phải trước ngày kết thúc!"
                     ).response
             elif 'start_date' in data and class_room:
                 if data['start_date'] > class_room.end_date:
                     return RestResponse(
                         status=status.HTTP_400_BAD_REQUEST,
-                        message="Start date cannot be after current end date"
+                        message="Ngày bắt đầu không thể sau ngày kết thúc hiện tại!"
                     ).response
             elif 'end_date' in data and class_room:
                 if class_room.start_date > data['end_date']:
                     return RestResponse(
                         status=status.HTTP_400_BAD_REQUEST,
-                        message="End date cannot be before current start date"
+                        message="Ngày kết thúc không thể trước ngày bắt đầu hiện tại!"
                     ).response
                 
             updated_class = serializer.save()
@@ -299,7 +299,7 @@ class WebClassRoomView(viewsets.ViewSet):
 
             if 'thumbnail' not in request.FILES:
                 return RestResponse(
-                    data={"error": "No thumbnail file provided"}, 
+                    message="Không có file ảnh đại diện!", 
                     status=status.HTTP_400_BAD_REQUEST
                 ).response
 

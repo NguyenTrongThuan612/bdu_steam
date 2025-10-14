@@ -138,19 +138,19 @@ class WebLessonEvaluationView(viewsets.ViewSet):
             if student not in lesson.module.class_room.approved_students:
                 return RestResponse(
                     status=status.HTTP_400_BAD_REQUEST,
-                    message="Student is not enrolled in this class"
+                    message="Học viên chưa tham gia lớp này!"
                 ).response
 
             if request.user not in [lesson.module.class_room.teacher, lesson.module.class_room.teaching_assistant]:
                 return RestResponse(
                     status=status.HTTP_403_FORBIDDEN,
-                    message="You are not the teacher of this class"
+                    message="Bạn không phải là giáo viên của lớp này!"
                 ).response
                 
             if lesson.status != 'completed':
                 return RestResponse(
                     status=status.HTTP_403_FORBIDDEN,
-                    message="Cannot evaluate lesson that has not completed"
+                    message="Không thể đánh giá buổi học chưa hoàn thành!"
                 ).response
             
             if LessonEvaluation.objects.filter(
@@ -160,7 +160,7 @@ class WebLessonEvaluationView(viewsets.ViewSet):
             ).exists():
                 return RestResponse(
                     status=status.HTTP_400_BAD_REQUEST,
-                    message="Evaluation for this student in this lesson already exists"
+                    message="Đánh giá cho học viên này trong buổi học này đã tồn tại!"
                 ).response
 
             evaluation = serializer.save()
@@ -198,19 +198,19 @@ class WebLessonEvaluationView(viewsets.ViewSet):
 
             if request.user not in [evaluation.lesson.module.class_room.teacher, evaluation.lesson.module.class_room.teaching_assistant]:
                 return RestResponse(
-                    data={"error": "You are not the teacher of this class"},
+                    message="Bạn không phải là giáo viên của lớp này!",
                     status=status.HTTP_403_FORBIDDEN
                 ).response
 
             if evaluation.lesson.module.class_room.end_date < timezone.now().date():
                 return RestResponse(
-                    data={"error": "Cannot update evaluation after class has ended"},
+                    message="Không thể cập nhật đánh giá sau khi lớp kết thúc!",
                     status=status.HTTP_403_FORBIDDEN
                 ).response
                 
             if evaluation.lesson.status != 'completed':
                 return RestResponse(
-                    data={"error": "Cannot evaluate lesson that has not completed"},
+                    message="Không thể đánh giá buổi học chưa hoàn thành!",
                     status=status.HTTP_403_FORBIDDEN
                 ).response
 
@@ -255,13 +255,13 @@ class WebLessonEvaluationView(viewsets.ViewSet):
 
             if request.user not in [evaluation.lesson.module.class_room.teacher, evaluation.lesson.module.class_room.teaching_assistant]:
                 return RestResponse(
-                    data={"error": "You are not the teacher of this class"},
+                    message="Bạn không phải là giáo viên của lớp này!",
                     status=status.HTTP_403_FORBIDDEN
                 ).response
 
             if evaluation.lesson.module.class_room.end_date < timezone.now().date():
                 return RestResponse(
-                    data={"error": "Cannot delete evaluation after class has ended"},
+                    message="Không thể xóa đánh giá sau khi lớp kết thúc!",
                     status=status.HTTP_403_FORBIDDEN
                 ).response
 

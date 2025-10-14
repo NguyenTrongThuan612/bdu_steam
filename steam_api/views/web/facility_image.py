@@ -38,7 +38,7 @@ class WebFacilityImageView(viewsets.ViewSet):
                 return RestResponse(
                     data=serializer.errors,
                     status=status.HTTP_400_BAD_REQUEST,
-                    message="Please check your data!"
+                    message="Vui lòng kiểm tra lại dữ liệu!"
                 ).response
             
             facility_image = serializer.save()
@@ -52,7 +52,6 @@ class WebFacilityImageView(viewsets.ViewSet):
             logger.exception("WebFacilityImageView.create exc=%s, req=%s", e, request.data)
             return RestResponse(
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                message="Internal server error"
             ).response
 
     @swagger_auto_schema(
@@ -70,7 +69,7 @@ class WebFacilityImageView(viewsets.ViewSet):
             except FacilityImage.DoesNotExist:
                 return RestResponse(
                     status=status.HTTP_404_NOT_FOUND,
-                    message="Facility image not found"
+                    message="Không tìm thấy ảnh đại cơ sở vật chất này!"
                 ).response
             
             facility_image.soft_delete()
@@ -81,7 +80,6 @@ class WebFacilityImageView(viewsets.ViewSet):
             logger.exception("WebFacilityImageView.destroy exc=%s, pk=%s", e, pk)
             return RestResponse(
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                message="Internal server error"
             ).response
 
     @swagger_auto_schema(
@@ -99,7 +97,7 @@ class WebFacilityImageView(viewsets.ViewSet):
             except FacilityImage.DoesNotExist:
                 return RestResponse(
                     status=status.HTTP_404_NOT_FOUND,
-                    message="Facility image not found"
+                    message="Không tìm thấy ảnh đại cơ sở vật chất này!"
                 ).response
             
             return RestResponse(
@@ -111,5 +109,4 @@ class WebFacilityImageView(viewsets.ViewSet):
             logger.exception("WebFacilityImageView.retrieve exc=%s, pk=%s", e, pk)
             return RestResponse(
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                message="Internal server error"
             ).response 

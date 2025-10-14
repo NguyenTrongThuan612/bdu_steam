@@ -116,13 +116,13 @@ class AppCourseRegistrationView(viewsets.ViewSet):
             if data['student'].course_registrations.filter(class_room=data['class_room'], deleted_at__isnull=True).exists():
                 return RestResponse(
                     status=status.HTTP_400_BAD_REQUEST,
-                    message="Student has already registered for this class"
+                    message="Học sinh đã đăng ký lớp này!"
                 ).response
             
             if data['class_room'].current_students_count >= data['class_room'].max_students:
                 return RestResponse(
                     status=status.HTTP_400_BAD_REQUEST,
-                    message="Class is full"
+                    message="Lớp đã đầy!"
                 ).response
 
             valid_students = StudentRegistration.objects.filter(
@@ -134,7 +134,7 @@ class AppCourseRegistrationView(viewsets.ViewSet):
             if not valid_students.filter(student=data['student']).exists():
                 return RestResponse(
                     status=status.HTTP_400_BAD_REQUEST,
-                    message="You are not allowed to register for this student"
+                    message="Bạn không có quyền đăng ký cho học sinh này!"
                 ).response
 
             data["status"] = "pending"

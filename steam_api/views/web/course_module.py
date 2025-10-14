@@ -110,6 +110,12 @@ class WebCourseModuleView(viewsets.ViewSet):
             if not serializer.is_valid():
                 return RestResponse(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST).response
 
+            data = serializer.validated_data
+
+            if "total_lessons" in data:
+                if len(data['lesson_names']) != data['total_lessons']:
+                    return RestResponse(message="Số bài học không khớp với số bài học đã đặt!", status=status.HTTP_400_BAD_REQUEST).response
+
             module = serializer.save()
             response_serializer = CourseModuleSerializer(module)
             return RestResponse(data=response_serializer.data, status=status.HTTP_201_CREATED).response

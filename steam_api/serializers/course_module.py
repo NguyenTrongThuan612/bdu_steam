@@ -23,16 +23,6 @@ class CreateCourseModuleSerializer(serializers.ModelSerializer):
         model = CourseModule
         fields = ['class_room', 'name', 'description', 'sequence_number', 'total_lessons', 'lesson_names']
 
-    def validate(self, data):
-        data = super().validate(data)
-        
-        if 'lesson_names' in data:
-            if len(data['lesson_names']) != data['total_lessons']:
-                raise serializers.ValidationError({
-                    'lesson_names': f"Number of lesson names ({len(data['lesson_names'])}) must match total_lessons ({data['total_lessons']})"
-                })
-        return data
-
     def create(self, validated_data):
         lesson_names = validated_data.pop('lesson_names', None)
         instance = super().create(validated_data)

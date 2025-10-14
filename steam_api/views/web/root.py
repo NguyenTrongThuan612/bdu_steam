@@ -62,10 +62,6 @@ class RootView(viewsets.ViewSet):
             user.set_password(_password)
             user.status = WebUserStatus.UNVERIFIED
             user.save() 
-                
-            if user.id is None:
-                return RestResponse(message="Failed to create user.", status=status.HTTP_500_INTERNAL_SERVER_ERROR).response
-            # audit_back_office(request.user, "Tạo tài khoản", user.email)
             return RestResponse(message="Thành công!", status=status.HTTP_201_CREATED).response
         except Exception as e:
             logging.getLogger().exception("RootView.create exc=%s, req=%s", e, request.data)

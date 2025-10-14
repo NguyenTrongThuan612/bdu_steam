@@ -137,7 +137,7 @@ class WebLessonGalleryView(viewsets.ViewSet):
             if request.user not in [lesson.module.class_room.teacher, lesson.module.class_room.teaching_assistant]:
                 return RestResponse(
                     status=status.HTTP_403_FORBIDDEN,
-                    message="You are not the teacher of this class"
+                    message="Bạn không phải là giáo viên của lớp này!"
                 ).response
             
             gallery = LessonGallery.objects.filter(
@@ -148,13 +148,13 @@ class WebLessonGalleryView(viewsets.ViewSet):
             if gallery and gallery.images_count >= 5:
                 return RestResponse(
                     status=status.HTTP_400_BAD_REQUEST,
-                    message="This lesson already has maximum number of images (5)"
+                    message="Buổi học này đã có số lượng ảnh tối đa (5)!"
                 ).response 
 
             if 'image' not in request.FILES:
                 return RestResponse(
                     status=status.HTTP_400_BAD_REQUEST,
-                    message="Image is required"
+                    message="Ảnh là bắt buộc!"
                 ).response
 
             serializer.validated_data['image'] = request.FILES['image']

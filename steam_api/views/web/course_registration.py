@@ -115,13 +115,13 @@ class WebCourseRegistrationView(viewsets.ViewSet):
             if data['student'].course_registrations.filter(class_room=data['class_room'], deleted_at__isnull=True).exists():
                 return RestResponse(
                     status=status.HTTP_400_BAD_REQUEST,
-                    message="Student has already registered for this class"
+                    message="Học sinh đã đăng ký lớp này!"
                 ).response
             
             if data['class_room'].current_students_count >= data['class_room'].max_students:
                 return RestResponse(
                     status=status.HTTP_400_BAD_REQUEST,
-                    message="Class is full"
+                    message="Lớp đã đủ số lượng học sinh!"
                 ).response
 
             data["status"] = "approved"
@@ -169,19 +169,19 @@ class WebCourseRegistrationView(viewsets.ViewSet):
             if registration.status == 'approved' and data['status'] != 'cancelled':
                 return RestResponse(
                     status=status.HTTP_400_BAD_REQUEST,
-                    message="Cannot change status of approved registration except to cancelled"
+                    message="Không thể thay đổi trạng thái đăng ký đã được phê duyệt ngoại trừ hủy đăng ký!"
                 ).response
             
             if registration.status in ['rejected', 'cancelled'] and data['status'] != registration.status:
                 return RestResponse(
                     status=status.HTTP_400_BAD_REQUEST,
-                    message="Cannot change status of rejected or cancelled registration"
+                    message="Không thể thay đổi trạng thái đăng ký bị từ chối hoặc hủy đăng ký!"
                 ).response
             
             if data['paid_amount'] > registration.amount:
                 return RestResponse(
                     status=status.HTTP_400_BAD_REQUEST,
-                    message="Paid amount cannot exceed total amount"
+                    message="Số tiền đã thanh toán không thể vượt quá số tiền tổng!"
                 ).response
 
             updated_registration = serializer.save()
