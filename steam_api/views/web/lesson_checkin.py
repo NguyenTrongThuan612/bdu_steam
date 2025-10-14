@@ -80,7 +80,7 @@ class WebLessonCheckinView(viewsets.ViewSet):
 
             if time_diff > 900:
                 return RestResponse(
-                    message="Checkin chỉ được thực hiện trong vòng 15 phút trước buổi học!",
+                    message="Checkin chỉ được thực hiện trong vòng 15 phút trước hoặc sau buổi học!",
                     status=status.HTTP_400_BAD_REQUEST
                 ).response
             

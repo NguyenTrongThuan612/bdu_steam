@@ -19,7 +19,6 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             access_jti = self.token_class.access_token_class(validated_data["access"]).payload["jti"]
             _session_data = WebUserSerializer(self.user, many=False, exclude=["password"]).data
             self.__save_session(self.user.id, _session_data, access_jti, refresh_jti)
-            # audit_back_office(self.user, "Đăng nhập", "Đăng nhập")
             return {**validated_data, "user_info": _session_data}
         except AuthenticationFailed as e:
             if self.user is None:
