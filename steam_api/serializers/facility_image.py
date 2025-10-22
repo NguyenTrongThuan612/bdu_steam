@@ -4,11 +4,6 @@ from steam_api.models.facility import Facility
 from steam_api.helpers.local_storage import upload_file_to_local
 
 class FacilityImageSerializer(serializers.ModelSerializer):
-    image_url = serializers.SerializerMethodField()
-
-    def get_image_url(self, obj):
-        return obj.get_image_url()
-    
     class Meta:
         model = FacilityImage
         fields = "__all__"

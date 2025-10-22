@@ -20,6 +20,3 @@ class LessonGallery(models.Model):
     @property
     def images_count(self):
         return len(self.image_urls)
-
-    def get_image_urls(self):
-        return [f"{settings.APP_DOMAIN}{image_url}" for image_url in self.image_urls]

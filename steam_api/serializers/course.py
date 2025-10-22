@@ -3,11 +3,6 @@ from steam_api.models.course import Course
 from steam_api.helpers.local_storage import upload_file_to_local
 
 class CourseSerializer(serializers.ModelSerializer):
-    thumbnail_url = serializers.SerializerMethodField()
-
-    def get_thumbnail_url(self, obj):
-        return obj.get_thumbnail_url()
-
     class Meta:
         model = Course
         fields = "__all__"

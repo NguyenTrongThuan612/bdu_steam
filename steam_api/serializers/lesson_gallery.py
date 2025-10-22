@@ -4,11 +4,6 @@ from steam_api.helpers.local_storage import upload_file_to_local
 from steam_api.models.lesson import Lesson
 
 class LessonGallerySerializer(serializers.ModelSerializer):
-    image_urls = serializers.SerializerMethodField()
-
-    def get_image_urls(self, obj):
-        return obj.get_image_urls()
-
     class Meta:
         model = LessonGallery
         fields = "__all__"

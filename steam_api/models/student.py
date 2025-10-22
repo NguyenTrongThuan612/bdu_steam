@@ -27,6 +27,3 @@ class Student(models.Model):
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.identification_number})" 
-
-    def get_avatar_url(self):
-        return f"{settings.APP_DOMAIN}{self.avatar_url}"

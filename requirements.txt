@@ -15,3 +15,7 @@ firebase_admin
 logtail-python
 Pillow
 psycopg2
+google-api-python-client
+google-auth
+google-auth-oauthlib
+google-auth-httplib2

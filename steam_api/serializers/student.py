@@ -3,11 +3,6 @@ from steam_api.models.student import Student
 from steam_api.helpers.local_storage import upload_file_to_local
 
 class StudentSerializer(serializers.ModelSerializer):
-    avatar_url = serializers.SerializerMethodField()
-
-    def get_avatar_url(self, obj):
-        return obj.get_avatar_url()
-
     class Meta:
         model = Student
         fields = "__all__"

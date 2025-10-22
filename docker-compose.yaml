@@ -24,9 +24,8 @@ services:
       - EMAIL_HOST_PASSWORD= # TODO: change to your email host password
       - BETTERSTACK_LOG_TOKEN=dXECcUYZxNVLX5GHN8XyRhzt
       - BETTERSTACK_LOG_HOST=s1529184.eu-nbg-2.betterstackdata.com
-      - APP_DOMAIN=https://stem.bdu.edu.vn
-    volumes:
-      - <path_on_host>/steam:/usr/src/app/media # TODO: change to your media path
+      - GDRIVE_SERVICE_ACCOUNT_FILE=/path/to/service_account.json # TODO: change to your service account file path
+      - GDRIVE_DEFAULT_FOLDER_ID=1snpYCNaNaMOTUF3Pt8lcBLDLC4UcOi1d
     depends_on:
       - steam_mysql
       - steam_redis

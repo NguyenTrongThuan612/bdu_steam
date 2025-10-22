@@ -15,6 +15,3 @@ class Course(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     deleted_at = models.DateTimeField(null=True)
-
-    def get_thumbnail_url(self):
-        return f"{settings.APP_DOMAIN}{self.thumbnail_url}"
