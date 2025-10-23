@@ -16,7 +16,7 @@ class FacilityImageCreateSerializer(serializers.Serializer):
     
     def create(self, validated_data):
         image_file = validated_data.pop('image')
-        image_url = upload_file_to_local(image_file)
+        image_url = upload_image_to_drive(image_file)
         
         facility_image = FacilityImage.objects.create(
             facility=validated_data['facility'],

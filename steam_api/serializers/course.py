@@ -19,7 +19,7 @@ class CreateCourseSerializer(serializers.ModelSerializer):
         
         if thumbnail:
             try:
-                thumbnail_url = upload_file_to_local(thumbnail)
+                thumbnail_url = upload_image_to_drive(thumbnail)
                 validated_data['thumbnail_url'] = thumbnail_url
             except Exception as e:
                 raise serializers.ValidationError({'thumbnail': str(e)})
@@ -45,7 +45,7 @@ class UpdateCourseSerializer(serializers.ModelSerializer):
         
         if thumbnail:
             try:
-                thumbnail_url = upload_file_to_local(thumbnail)
+                thumbnail_url = upload_image_to_drive(thumbnail)
                 validated_data['thumbnail_url'] = thumbnail_url
             except Exception as e:
                 raise serializers.ValidationError({'thumbnail': str(e)})

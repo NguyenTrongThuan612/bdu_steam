@@ -23,7 +23,7 @@ class CreateLessonGallerySerializer(serializers.ModelSerializer):
         lesson = validated_data.pop('lesson')
         
         try:
-            image_url = upload_file_to_local(image)
+            image_url = upload_image_to_drive(image)
             
             if LessonGallery.objects.filter(
                 lesson=lesson,

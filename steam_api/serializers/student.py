@@ -28,7 +28,7 @@ class CreateStudentSerializer(serializers.ModelSerializer):
         
         if avatar:
             try:
-                avatar_url = upload_file_to_local(avatar)
+                avatar_url = upload_image_to_drive(avatar)
                 validated_data['avatar_url'] = avatar_url
             except Exception as e:
                 raise serializers.ValidationError({'avatar': str(e)})
@@ -60,7 +60,7 @@ class UpdateStudentSerializer(serializers.ModelSerializer):
         
         if avatar:
             try:
-                avatar_url = upload_file_to_local(avatar)
+                avatar_url = upload_image_to_drive(avatar)
                 validated_data['avatar_url'] = avatar_url
             except Exception as e:
                 raise serializers.ValidationError({'avatar': str(e)})

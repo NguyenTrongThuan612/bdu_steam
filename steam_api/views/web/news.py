@@ -79,7 +79,7 @@ class WebNewsView(viewsets.ViewSet):
             validated_data = serializer.validated_data
 
             if "image" in validated_data:
-                image_url = upload_file_to_local(validated_data.pop('image'))
+                image_url = upload_image_to_drive(validated_data.pop('image'))
                 news.image = image_url
 
             for key, value in validated_data.items():
