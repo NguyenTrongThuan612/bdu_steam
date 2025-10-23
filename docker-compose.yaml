@@ -18,14 +18,16 @@ services:
       - REDIS_PORT=6379
       - REDIS_USERNAME=
       - REDIS_PASSWORD=
-      - EMAIL_HOST=smtp.gmail.com # TODO: change to your email host
-      - EMAIL_PORT=587 # TODO: change to your email port
-      - EMAIL_HOST_USER= # TODO: change to your email host user
+      - EMAIL_HOST=smtp.gmail.com
+      - EMAIL_PORT=587
+      - EMAIL_HOST_USER=steam@bdu.edu.vn
       - EMAIL_HOST_PASSWORD= # TODO: change to your email host password
       - BETTERSTACK_LOG_TOKEN=dXECcUYZxNVLX5GHN8XyRhzt
       - BETTERSTACK_LOG_HOST=s1529184.eu-nbg-2.betterstackdata.com
-      - GDRIVE_SERVICE_ACCOUNT_FILE=/path/to/service_account.json # TODO: change to your service account file path
-      - GDRIVE_DEFAULT_FOLDER_ID=1snpYCNaNaMOTUF3Pt8lcBLDLC4UcOi1d
+      - GDRIVE_SERVICE_ACCOUNT_FILE=/usr/src/app/service_account.json
+      - GDRIVE_DEFAULT_FOLDER_ID=1VHUbV2LkYQdUDNlN2unNbxLYwT-PEV1H
+    volumes:
+      - <path_on_host>/service_account.json:/usr/src/app/service_account.json # TODO: change to your service account file path
     depends_on:
       - steam_mysql
       - steam_redis
