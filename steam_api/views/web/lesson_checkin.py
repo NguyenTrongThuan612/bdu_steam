@@ -20,7 +20,6 @@ class WebLessonCheckinView(viewsets.ViewSet):
     def get_permissions(self):
         if self.action == 'create':
             return [IsTeacher()]
-        
         return [IsNotRoot()]
 
     @swagger_auto_schema(

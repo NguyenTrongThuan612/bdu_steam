@@ -14,11 +14,13 @@ from steam_api.serializers.facility import (
     FacilityCreateSerializer,
     FacilityUpdateSerializer
 )
+from steam_api.middlewares.permissions import IsManager
 
 logger = logging.getLogger(__name__)
 
 class WebFacilityView(viewsets.ViewSet):
     authentication_classes = (WebUserAuthentication,)
+    permission_classes = (IsManager,)
     parser_classes = (MultiPartParser,)
 
     @swagger_auto_schema(

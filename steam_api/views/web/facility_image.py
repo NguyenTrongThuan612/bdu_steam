@@ -12,12 +12,14 @@ from steam_api.serializers.facility_image import (
     FacilityImageSerializer,
     FacilityImageCreateSerializer
 )
+from steam_api.middlewares.permissions import IsManager
 
 logger = logging.getLogger(__name__)
 
 
 class WebFacilityImageView(viewsets.ViewSet):
     authentication_classes = (WebUserAuthentication,)
+    permission_classes = (IsManager,)
     parser_classes = (MultiPartParser,)
 
     @swagger_auto_schema(

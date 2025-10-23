@@ -17,8 +17,8 @@ class WebNewsView(viewsets.ViewSet):
 
     def get_permissions(self):
         if self.action in ['create', 'update', 'destroy']:
-            return [IsNotRoot()]
-        return [IsManager()]
+            return [IsManager()]
+        return [IsNotRoot()]
 
     @swagger_auto_schema(
         operation_description="Get all news",
