@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from steam_api.models.student import Student
-from steam_api.helpers.local_storage import upload_file_to_local
+from steam_api.helpers.google_drive_storage import upload_image_to_drive
 
 class StudentSerializer(serializers.ModelSerializer):
     class Meta:

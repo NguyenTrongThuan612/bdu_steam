@@ -7,7 +7,6 @@ from steam_api.middlewares.permissions import IsManager, IsNotRoot
 from steam_api.helpers.response import RestResponse
 from drf_yasg.utils import swagger_auto_schema
 import logging
-from steam_api.helpers.local_storage import upload_file_to_local
 from steam_api.helpers.google_drive_storage import upload_image_to_drive
 from datetime import datetime
 from rest_framework.request import Request
