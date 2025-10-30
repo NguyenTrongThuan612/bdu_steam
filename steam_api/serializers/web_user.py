@@ -18,6 +18,7 @@ class WebUserSerializer(serializers.ModelSerializer):
             self.fields.pop(field, None)
 
 class CreateWebUserSerializer(serializers.Serializer):
+    name = serializers.CharField(required=True)
     email = serializers.EmailField(required=True)
     phone = serializers.CharField(required=False)
     password = serializers.CharField(required=True)
