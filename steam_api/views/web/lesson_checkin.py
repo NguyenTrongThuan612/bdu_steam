@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
 import logging
@@ -55,7 +55,7 @@ class WebLessonCheckinView(viewsets.ViewSet):
             
             lesson : Lesson = serializer.validated_data['lesson']
 
-            if not lesson.module.class_room.teacher_id == request.user.id and not lesson.module.class_room.teaching_assistant_id == request.user.id:
+            if lesson.module.class_room.teacher_id != request.user.id and lesson.module.class_room.teaching_assistant_id != request.user.id:
                 return RestResponse(
                     message="Bạn không có quyền checkin buổi học này!",
                     status=status.HTTP_403_FORBIDDEN
@@ -74,12 +74,10 @@ class WebLessonCheckinView(viewsets.ViewSet):
                 ).response
 
             logging.getLogger().info(f"WebLessonCheckinView.create lesson.start_datetime: {lesson.start_datetime}")
-            time_diff = abs((lesson.start_datetime - checkin_time).total_seconds())
-            logging.getLogger().info(f"WebLessonCheckinView.create time_diff: {time_diff}")
 
-            if time_diff > 900:
+            if checkin_time < lesson.start_datetime - timedelta(minutes=15) or checkin_time > lesson.end_datetime:
                 return RestResponse(
-                    message="Checkin chỉ được thực hiện trong vòng 15 phút trước hoặc sau buổi học!",
+                    message="Bạn chỉ được checkin buổi học này trong thời gian quy định!",
                     status=status.HTTP_400_BAD_REQUEST
                 ).response
             

@@ -143,10 +143,10 @@ class WebAttendanceView(viewsets.ViewSet):
                     message="Bạn không có quyền điểm danh buổi học này!"   
                 ).response
             
-            if data['lesson'].status != 'completed':
+            if data['lesson'].status == 'not_started':
                 return RestResponse(
                     status=status.HTTP_403_FORBIDDEN,
-                    message="Buổi học này chưa hoàn thành!"
+                    message="Buổi học này chưa bắt đầu!"
                 ).response
             
             if Attendance.objects.filter(
