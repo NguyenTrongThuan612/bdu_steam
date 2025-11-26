@@ -75,7 +75,7 @@ class WebLessonCheckinView(viewsets.ViewSet):
 
             logging.getLogger().info(f"WebLessonCheckinView.create lesson.start_datetime: {lesson.start_datetime}")
 
-            if checkin_time < lesson.start_datetime - timedelta(minutes=15) or checkin_time > lesson.end_datetime:
+            if checkin_time < lesson.start_datetime - timedelta(minutes=15) or checkin_time > lesson.end_datetime + timedelta(days=3):
                 return RestResponse(
                     message="Bạn chỉ được checkin buổi học này trong thời gian quy định!",
                     status=status.HTTP_400_BAD_REQUEST
