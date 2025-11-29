@@ -80,11 +80,11 @@ class WebLessonView(viewsets.ViewSet):
             date_str = request.query_params.get('lesson_date')
             lessons = Lesson.objects.filter(deleted_at__isnull=True)
 
-            # if request.user.role == WebUserRole.TEACHER:
-            #     lessons = lessons.filter(
-            #         Q(module__class_room__teacher=request.user) |
-            #         Q(module__class_room__teaching_assistant=request.user)
-            #     )
+            if request.user.role == WebUserRole.TEACHER:
+                lessons = lessons.filter(
+                    Q(module__class_room__teacher=request.user) |
+                    Q(module__class_room__teaching_assistant=request.user)
+                )
             
             if module_id:
                 lessons = lessons.filter(module_id=module_id)
