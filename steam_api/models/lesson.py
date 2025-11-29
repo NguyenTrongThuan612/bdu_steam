@@ -3,6 +3,7 @@ from django.db import models
 from django.core.validators import MinValueValidator
 from steam_api.models.course_module import CourseModule
 from steam_api.helpers.lesson_schedule import calculate_lesson_status, get_lesson_start_datetime, get_lesson_end_datetime
+from zoneinfo import ZoneInfo
 
 class Lesson(models.Model):
     class Meta:
@@ -48,6 +49,13 @@ class Lesson(models.Model):
     
     @property
     def start_datetime(self) -> datetime:
+        replacement = self.replacements.filter(
+            deleted_at__isnull=True
+        ).order_by('schedule').first()
+        
+        if replacement:
+            return replacement.schedule.astimezone(ZoneInfo('Asia/Ho_Chi_Minh'))
+        
         return get_lesson_start_datetime(
             start_date=self.module.class_room.start_date,
             schedule=self.module.class_room.schedule,
@@ -55,9 +63,26 @@ class Lesson(models.Model):
         )
     
     @property
-    def end_datetime(self) -> datetime:
-        return get_lesson_end_datetime(
+    def end_datetime(self) -> datetime:      
+        end_at = get_lesson_end_datetime(
             start_date=self.module.class_room.start_date,
             schedule=self.module.class_room.schedule,
             lesson_sequence=self.sequence_number
         )
+        start_at = get_lesson_start_datetime(
+            start_date=self.module.class_room.start_date,
+            schedule=self.module.class_room.schedule,
+            lesson_sequence=self.sequence_number
+        )
+        
+        replacement = self.replacements.filter(
+            lesson=self,
+            deleted_at__isnull=True
+        ).order_by('schedule').first()
+        
+        duration = end_at - start_at
+        
+        if replacement:
+            return replacement.schedule.astimezone(ZoneInfo('Asia/Ho_Chi_Minh')) + duration
+        
+        return end_at

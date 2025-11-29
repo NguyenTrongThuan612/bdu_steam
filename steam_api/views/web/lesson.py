@@ -1,18 +1,22 @@
 import logging
+from zoneinfo import ZoneInfo
 from rest_framework import viewsets, status
+from rest_framework.decorators import action
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from django.utils import timezone
 from django.db import transaction
 from django.db.models import Q
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from steam_api.helpers.response import RestResponse
 from steam_api.models.lesson import Lesson
+from steam_api.models.lesson_replacement import LessonReplacement
 from steam_api.models.web_user import WebUserRole
 from steam_api.serializers.lesson import LessonSerializer, UpdateLessonSerializer, CreateLessonSerializer
 from steam_api.middlewares.permissions import IsManager, IsNotRoot
 from steam_api.middlewares.web_authentication import WebUserAuthentication
+from steam_api.serializers.lesson_replacement import CreateLessonReplacementSerializer, LessonReplacementSerializer
 
 class WebLessonView(viewsets.ViewSet):
     authentication_classes = (WebUserAuthentication,)
@@ -76,11 +80,11 @@ class WebLessonView(viewsets.ViewSet):
             date_str = request.query_params.get('lesson_date')
             lessons = Lesson.objects.filter(deleted_at__isnull=True)
 
-            if request.user.role == WebUserRole.TEACHER:
-                lessons = lessons.filter(
-                    Q(module__class_room__teacher=request.user) |
-                    Q(module__class_room__teaching_assistant=request.user)
-                )
+            # if request.user.role == WebUserRole.TEACHER:
+            #     lessons = lessons.filter(
+            #         Q(module__class_room__teacher=request.user) |
+            #         Q(module__class_room__teaching_assistant=request.user)
+            #     )
             
             if module_id:
                 lessons = lessons.filter(module_id=module_id)
@@ -273,3 +277,91 @@ class WebLessonView(viewsets.ViewSet):
         except Exception as e:
             logging.getLogger().exception("WebLessonView.destroy exc=%s", e)
             return RestResponse(data={"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR).response 
+        
+    @swagger_auto_schema(
+        request_body=CreateLessonReplacementSerializer,
+    )
+    @action(detail=True, methods=['PATCH'], url_path='replace')
+    def replace(self, request, pk=None):
+        try:
+            logging.getLogger().info("WebLessonView.replace pk=%s", pk)
+            
+            lesson = Lesson.objects.filter(id=pk, deleted_at__isnull=True).first()
+            if not lesson:
+                return RestResponse(message="Bài học không tồn tại", status=status.HTTP_404_NOT_FOUND).response
+            
+            if lesson.status != "not_started":
+                return RestResponse(message="Không thể thay đổi lịch bài học đã bắt đầu hoặc đã kết thúc!", status=status.HTTP_400_BAD_REQUEST).response
+            
+            existing_replacement = LessonReplacement.objects.filter(
+                lesson=lesson,
+                deleted_at__isnull=True
+            ).first()
+            
+            if existing_replacement:
+                return RestResponse(message="Bài học đã có lịch thay thế!", status=status.HTTP_400_BAD_REQUEST).response
+            
+            serializer = CreateLessonReplacementSerializer(data=request.data)
+            if not serializer.is_valid():
+                return RestResponse(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST).response
+            
+            data = serializer.validated_data
+            logging.getLogger().info("WebLessonView.replace data=%s", data)
+            
+            schedule : datetime = data['schedule']
+            has_schedule = data['schedule'] is not None
+            tz = ZoneInfo('Asia/Ho_Chi_Minh')
+            
+            if has_schedule and schedule < datetime.now(tz):
+                return RestResponse(message="Thời gian thay thế không thể trước thời gian hiện tại!", status=status.HTTP_400_BAD_REQUEST).response
+            
+            previous_lesson = Lesson.objects.filter(
+                module=lesson.module,
+                sequence_number=lesson.sequence_number - 1,
+                deleted_at__isnull=True
+            ).order_by('sequence_number').first()
+            
+            previous_lesson_replacement = LessonReplacement.objects.filter(
+                lesson=previous_lesson,
+                deleted_at__isnull=True
+            ).order_by('schedule').first()
+            
+            previous_lesson_end_datetime = None
+            
+            if previous_lesson_replacement:
+                previous_lesson_end_datetime = previous_lesson_replacement.schedule
+            elif previous_lesson:
+                previous_lesson_end_datetime = previous_lesson.end_datetime
+            
+            if previous_lesson_end_datetime and schedule < previous_lesson_end_datetime + timedelta(minutes=30):
+                return RestResponse(message="Thời gian học bù phải sau ít nhất 30 phút so với bài học trước!", status=status.HTTP_400_BAD_REQUEST).response
+            
+            next_lesson = Lesson.objects.filter(
+                module=lesson.module,
+                sequence_number=lesson.sequence_number + 1,
+                deleted_at__isnull=True
+            ).order_by('sequence_number').first()
+            
+            next_lesson_replacement = LessonReplacement.objects.filter(
+                lesson=next_lesson,
+                deleted_at__isnull=True
+            ).order_by('schedule').first()
+            
+            next_lesson_start_datetime = None
+            
+            if next_lesson_replacement:
+                next_lesson_start_datetime = next_lesson_replacement.schedule
+            elif next_lesson:
+                next_lesson_start_datetime = next_lesson.start_datetime
+            
+            if next_lesson_start_datetime and schedule > next_lesson_start_datetime - timedelta(hours=2):
+                return RestResponse(message="Thời gian thay thế phải trước ít nhất 2 giờ so với bài học tiếp theo", status=status.HTTP_400_BAD_REQUEST).response
+            
+            lesson_replacement = LessonReplacement.objects.create(
+                lesson=lesson,
+                schedule=data['schedule']
+            )
+            return RestResponse(data=LessonReplacementSerializer(lesson_replacement).data, status=status.HTTP_201_CREATED).response
+        except Exception as e:
+            logging.getLogger().exception("WebLessonView.replace exc=%s", e)
+            return RestResponse(data={"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR).response

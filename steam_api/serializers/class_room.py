@@ -1,3 +1,4 @@
+from datetime import datetime
 from rest_framework import serializers
 from steam_api.models.class_room import ClassRoom
 from steam_api.serializers.student import StudentSerializer
@@ -38,6 +39,25 @@ class CreateClassRoomSerializer(serializers.ModelSerializer):
         model = ClassRoom
         fields = ['name', 'description', 'course', 'teacher', 'teaching_assistant', 'max_students',
                  'start_date', 'end_date', 'schedule']
+    
+    def validate_schedule(self, value):
+        days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+        
+        for k, v in value.items():
+            if k.lower() not in days:
+                raise serializers.ValidationError("Ngày học không hợp lệ!")
+            
+            time_range = v.split('-')
+            if len(time_range) != 2:
+                raise serializers.ValidationError("Giờ học không hợp lệ!")
+            
+            start_time = time_range[0]
+            end_time = time_range[1]
+            
+            if datetime.strptime(start_time, '%H:%M').time() >= datetime.strptime(end_time, '%H:%M').time():
+                raise serializers.ValidationError("Giờ học không hợp lệ!")
+            
+        return value
 
 class UpdateClassRoomSerializer(serializers.ModelSerializer):
     teacher = serializers.PrimaryKeyRelatedField(
