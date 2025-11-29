@@ -293,14 +293,6 @@ class WebLessonView(viewsets.ViewSet):
             if lesson.status != "not_started":
                 return RestResponse(message="Không thể thay đổi lịch bài học đã bắt đầu hoặc đã kết thúc!", status=status.HTTP_400_BAD_REQUEST).response
             
-            existing_replacement = LessonReplacement.objects.filter(
-                lesson=lesson,
-                deleted_at__isnull=True
-            ).first()
-            
-            if existing_replacement:
-                return RestResponse(message="Bài học đã có lịch thay thế!", status=status.HTTP_400_BAD_REQUEST).response
-            
             serializer = CreateLessonReplacementSerializer(data=request.data)
             if not serializer.is_valid():
                 return RestResponse(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST).response
@@ -356,6 +348,11 @@ class WebLessonView(viewsets.ViewSet):
             
             if next_lesson_start_datetime and schedule > next_lesson_start_datetime - timedelta(hours=2):
                 return RestResponse(message="Thời gian thay thế phải trước ít nhất 2 giờ so với bài học tiếp theo", status=status.HTTP_400_BAD_REQUEST).response
+            
+            LessonReplacement.objects.filter(
+                lesson=lesson,
+                deleted_at__isnull=True
+            ).update(deleted_at=datetime.now())
             
             lesson_replacement = LessonReplacement.objects.create(
                 lesson=lesson,
