@@ -35,6 +35,9 @@ from steam_api.views.app.lesson_documentation import AppLessonDocumentationView
 from steam_api.views.app.course_registration import AppCourseRegistrationView
 from steam_api.views.app.news import AppNewsView
 from steam_api.views.web.news import WebNewsView
+from steam_api.views.app.feedback import AppFeedbackView
+from steam_api.views.web.feedback import WebFeedbackView
+from steam_api.views.web.feedback_reply import WebFeedbackReplyView
 
 app_router = SimpleRouter(trailing_slash=False)
 app_router.register('auth', AppAuthView, "app_auth")
@@ -51,6 +54,7 @@ app_router.register('facilities', AppFacilityView, "app_facilities")
 app_router.register('lesson-documentations', AppLessonDocumentationView, "app_lesson_documentations")
 app_router.register('course-registrations', AppCourseRegistrationView, "app_course_registrations")
 app_router.register('news', AppNewsView, "app_news")
+app_router.register('feedbacks', AppFeedbackView, "app_feedbacks")
 
 web_router = SimpleRouter(trailing_slash=False)
 web_router.register('root/users', RootView, "web_root_users")
@@ -71,6 +75,8 @@ web_router.register('attendances', WebAttendanceView, "web_attendances")
 web_router.register('lesson-checkins', WebLessonCheckinView, "lesson_checkins")
 web_router.register('lesson-documentations', WebLessonDocumentationView, "lesson_documentations")
 web_router.register('news', WebNewsView, "news")
+web_router.register('feedbacks', WebFeedbackView, "web_feedbacks")
+web_router.register('feedback-replies', WebFeedbackReplyView, "web_feedback_replies")
 
 urlpatterns = [
    path('app/', include(app_router.urls)),

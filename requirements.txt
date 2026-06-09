@@ -1,7 +1,7 @@
 django
 djangorestframework
 drf-yasg
-mysqlclient
+# mysqlclient
 python-decouple
 pyjwt
 bcrypt
@@ -14,7 +14,7 @@ requests
 firebase_admin
 logtail-python
 Pillow
-psycopg2
+psycopg2[bin]
 google-api-python-client
 google-auth
 google-auth-oauthlib
